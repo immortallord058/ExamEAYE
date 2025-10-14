@@ -190,37 +190,13 @@ class ProctoringService:
                 'face_count': 0,
                 'looking_away': False,
                 'multiple_faces': False,
+                'no_person': False,
                 'phone_detected': False,
                 'book_detected': False,
                 'snapshot_base64': None
             }
             
-            # Process face mesh for head pose
-            face_mesh_results = self.mp_face_mesh.process(rgb_frame)
-            if face_mesh_results.multi_face_landmarks:
-                landmarks = face_mesh_results.multi_face_landmarks[0].landmark
-                angles = self.estimate_head_pose(landmarks, width, height)
-                
-                if angles:
-                    pitch, yaw, roll = angles
-                    result['head_pose'] = {
-                        'pitch': float(pitch),
-                        'yaw': float(yaw),
-                        'roll': float(roll)
-                    }
-                    
-                    # Check if looking away
-                    if self.is_looking_away(pitch, yaw, calibrated_pitch, calibrated_yaw):
-                        result['looking_away'] = True
-                        result['violations'].append({
-                            'type': 'looking_away',
-                            'severity': 'medium',
-                            'message': 'Student is looking away from screen'
-                        })
-                        cv2.putText(frame, "LOOKING AWAY!", (50, 50), 
-                                  cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            
-            # Detect multiple faces
+            # Detect multiple faces first
             face_detection_results = self.mp_face_detection.process(rgb_frame)
             if face_detection_results.detections:
                 result['face_count'] = len(face_detection_results.detections)
@@ -234,6 +210,42 @@ class ProctoringService:
                     })
                     cv2.putText(frame, "MULTIPLE PEOPLE DETECTED!", (50, 100),
                               cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            else:
+                # No person detected
+                result['no_person'] = True
+                result['violations'].append({
+                    'type': 'no_person',
+                    'severity': 'high',
+                    'message': 'No person detected in frame'
+                })
+                cv2.putText(frame, "NO PERSON DETECTED!", (50, 50),
+                          cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            
+            # Process face mesh for head pose (only if single person detected)
+            if result['face_count'] == 1:
+                face_mesh_results = self.mp_face_mesh.process(rgb_frame)
+                if face_mesh_results.multi_face_landmarks:
+                    landmarks = face_mesh_results.multi_face_landmarks[0].landmark
+                    angles = self.estimate_head_pose(landmarks, width, height)
+                    
+                    if angles:
+                        pitch, yaw, roll = angles
+                        result['head_pose'] = {
+                            'pitch': float(pitch),
+                            'yaw': float(yaw),
+                            'roll': float(roll)
+                        }
+                        
+                        # Check if looking away
+                        if self.is_looking_away(pitch, yaw, calibrated_pitch, calibrated_yaw):
+                            result['looking_away'] = True
+                            result['violations'].append({
+                                'type': 'looking_away',
+                                'severity': 'medium',
+                                'message': 'Student is looking away from screen'
+                            })
+                            cv2.putText(frame, "LOOKING AWAY!", (50, 150), 
+                                      cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             
             # Detect prohibited objects
             object_detection = self.detect_prohibited_objects(frame)
