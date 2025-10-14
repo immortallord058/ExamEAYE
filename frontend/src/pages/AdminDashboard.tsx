@@ -499,7 +499,7 @@ const AdminDashboard = () => {
                                 <div className="flex items-center gap-2 mb-1">
                                   <span className="font-semibold">{violation.student_name}</span>
                                   <Badge variant="outline" className="text-xs">
-                                    {violation.violation_type.replace('_', ' ')}
+                                    {getViolationLabel(violation.violation_type)}
                                   </Badge>
                                 </div>
                                 <p className="text-sm text-muted-foreground mb-2">
