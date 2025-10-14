@@ -57,8 +57,8 @@ const AdminDashboard = () => {
     // Connect to WebSocket for real-time updates
     connectWebSocket();
 
-    // Refresh data every 30 seconds
-    const interval = setInterval(loadDashboardData, 30000);
+    // Refresh data every 5 seconds for real-time updates
+    const interval = setInterval(loadDashboardData, 5000);
 
     return () => {
       clearInterval(interval);
