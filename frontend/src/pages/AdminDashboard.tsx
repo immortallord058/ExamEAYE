@@ -337,6 +337,86 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
+        {/* Average Statistics Cards */}
+        {averageStats && (
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Avg Violations/Student</p>
+                    <p className="text-3xl font-bold">{averageStats.avg_violations_per_student}</p>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-orange-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Avg Exam Duration</p>
+                    <p className="text-3xl font-bold">{averageStats.avg_exam_duration_minutes.toFixed(0)} min</p>
+                  </div>
+                  <Clock className="w-8 h-8 text-purple-500" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Total Students</p>
+                    <p className="text-3xl font-bold">{averageStats.total_students}</p>
+                  </div>
+                  <Users className="w-8 h-8 text-cyan-500" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Violations Timeline Chart */}
+        {violationsTimeline.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="w-5 h-5" />
+                Violations Over Time
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={violationsTimeline}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      tickFormatter={(value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    />
+                    <YAxis />
+                    <Tooltip 
+                      labelFormatter={(value) => new Date(value).toLocaleString()}
+                      formatter={(value) => [`${value} violations`, 'Count']}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="count" 
+                      stroke="#ef4444" 
+                      strokeWidth={2}
+                      dot={{ fill: '#ef4444', r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Active Sessions */}
           <div className="lg:col-span-2 space-y-6">
