@@ -1,302 +1,394 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Clock, VideoOff, Video, Save } from "lucide-react";
+import { Shield, Camera, AlertTriangle, Eye, User2, Smartphone, Book, Clock, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { api, ExamSession, createWebSocket } from "@/services/api";
+import { startWebcam, stopWebcam, captureFrame } from "@/utils/webcam";
 
 const StudentExam = () => {
   const navigate = useNavigate();
   const [studentData, setStudentData] = useState<any>(null);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(3600); // 60 minutes in seconds
-  const [answers, setAnswers] = useState<{ [key: number]: string }>({});
-  const [examId, setExamId] = useState<string | null>(null);
+  const [calibrationData, setCalibrationData] = useState<any>(null);
+  const [session, setSession] = useState<ExamSession | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [isMonitoring, setIsMonitoring] = useState(false);
+  const [currentViolations, setCurrentViolations] = useState<string[]>([]);
+  const [violationCount, setViolationCount] = useState(0);
+  const [examTime, setExamTime] = useState(0);
+  const [warnings, setWarnings] = useState<Array<{ type: string; message: string; time: string }>>([]);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  const questions = [
-    { id: 1, text: "What is the capital of France?" },
-    { id: 2, text: "Explain the concept of object-oriented programming." },
-    { id: 3, text: "What are the three main types of machine learning?" },
-  ];
+  const monitoringInterval = useRef<NodeJS.Timeout | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    const data = sessionStorage.getItem('studentData');
-    if (!data) {
-      toast.error("Please register first");
+    // Load student and calibration data
+    const studentDataStr = sessionStorage.getItem('studentData');
+    const calibDataStr = sessionStorage.getItem('calibrationData');
+
+    if (!studentDataStr || !calibDataStr) {
+      toast.error("Please complete registration and verification first");
       navigate('/student/register');
       return;
     }
-    const parsedData = JSON.parse(data);
-    setStudentData(parsedData);
 
-    // Get exam ID and start exam
-    startExam(parsedData);
-
-    // Start camera
-    startCamera();
-
-    // Timer countdown
-    const timer = setInterval(() => {
-      setTimeRemaining(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmit();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // Track tab visibility for violation detection
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        recordViolation('tab_switch', 'Student switched tabs');
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    setStudentData(JSON.parse(studentDataStr));
+    setCalibrationData(JSON.parse(calibDataStr));
 
     return () => {
-      clearInterval(timer);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
+      cleanup();
     };
   }, [navigate]);
 
-  const startExam = async (data: any) => {
-    try {
-      const { data: exams, error } = await supabase
-        .from('exams')
-        .select('id')
-        .eq('subject_code', data.subjectCode)
-        .single();
-
-      if (error) throw error;
-
-      setExamId(exams.id);
-
-      // Update exam status to in_progress
-      await supabase
-        .from('exams')
-        .update({ 
-          status: 'in_progress',
-          started_at: new Date().toISOString()
-        })
-        .eq('id', exams.id);
-
-    } catch (error) {
-      console.error('Error starting exam:', error);
+  useEffect(() => {
+    // Start exam session when component mounts and data is ready
+    if (studentData && calibrationData && !session) {
+      initializeExam();
     }
-  };
+  }, [studentData, calibrationData]);
 
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: true, 
-        audio: true 
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      
-      streamRef.current = stream;
-      setCameraActive(true);
-    } catch (error) {
-      console.error('Camera error:', error);
-      toast.error("Camera access required for exam");
+  useEffect(() => {
+    // Timer for exam duration
+    if (isMonitoring) {
+      const timer = setInterval(() => {
+        setExamTime(prev => prev + 1);
+      }, 1000);
+      return () => clearInterval(timer);
     }
-  };
+  }, [isMonitoring]);
 
-  const recordViolation = async (type: string, details: string) => {
-    if (!examId || !studentData) return;
-
+  const initializeExam = async () => {
     try {
-      await supabase
-        .from('violations')
-        .insert({
-          exam_id: examId,
-          student_id: studentData.id,
-          violation_type: type,
-          severity: 'medium',
-          details: { message: details }
-        });
+      if (!videoRef.current) return;
 
-      toast.warning("Violation recorded: " + details);
-    } catch (error) {
-      console.error('Error recording violation:', error);
-    }
-  };
+      // Start webcam
+      const mediaStream = await startWebcam(videoRef.current);
+      setStream(mediaStream);
 
-  const handleSaveDraft = async () => {
-    if (!examId) return;
-
-    try {
-      const promises = Object.entries(answers).map(([questionNum, answer]) =>
-        supabase
-          .from('exam_answers')
-          .upsert({
-            exam_id: examId,
-            question_number: parseInt(questionNum),
-            answer: answer,
-            updated_at: new Date().toISOString()
-          })
+      // Create exam session
+      const newSession = await api.startSession(
+        studentData.student_id,
+        studentData.name,
+        calibrationData.pitch,
+        calibrationData.yaw
       );
+      setSession(newSession);
 
-      await Promise.all(promises);
-      toast.success("Draft saved successfully");
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      toast.error("Failed to save draft");
+      // Connect WebSocket for real-time updates
+      connectWebSocket(newSession.id);
+
+      // Start monitoring after a brief delay
+      setTimeout(() => {
+        startMonitoring(newSession);
+      }, 2000);
+
+      toast.success("Exam session started. AI monitoring is active.");
+    } catch (error: any) {
+      console.error('Exam initialization error:', error);
+      toast.error(error.message || "Failed to start exam");
     }
   };
 
-  const handleSubmit = async () => {
-    if (!examId) return;
+  const connectWebSocket = (sessionId: string) => {
+    try {
+      const ws = createWebSocket(`/ws/student/${sessionId}`);
+      
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+      };
+
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        if (message.type === 'violation_warning') {
+          toast.warning(message.data.message, { duration: 5000 });
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket disconnected');
+      };
+
+      wsRef.current = ws;
+    } catch (error) {
+      console.error('WebSocket connection error:', error);
+    }
+  };
+
+  const startMonitoring = (examSession: ExamSession) => {
+    setIsMonitoring(true);
+
+    // Process frame every 2 seconds
+    monitoringInterval.current = setInterval(async () => {
+      if (!videoRef.current || !examSession) return;
+
+      try {
+        const frameBase64 = captureFrame(videoRef.current);
+        
+        const result = await api.processFrame(
+          examSession.id,
+          frameBase64,
+          calibrationData.pitch,
+          calibrationData.yaw
+        );
+
+        // Update current violations
+        const activeViolations: string[] = [];
+        if (result.looking_away) activeViolations.push('Looking Away');
+        if (result.multiple_faces) activeViolations.push('Multiple People');
+        if (result.phone_detected) activeViolations.push('Phone Detected');
+        if (result.book_detected) activeViolations.push('Book Detected');
+
+        setCurrentViolations(activeViolations);
+
+        // If new violations detected, add to warnings
+        if (result.violations.length > 0) {
+          const newWarnings = result.violations.map(v => ({
+            type: v.type,
+            message: v.message,
+            time: new Date().toLocaleTimeString()
+          }));
+          
+          setWarnings(prev => [...newWarnings, ...prev].slice(0, 10)); // Keep last 10
+          setViolationCount(prev => prev + result.violations.length);
+
+          // Show toast for high severity violations
+          result.violations.forEach(v => {
+            if (v.severity === 'high') {
+              toast.error(v.message, { duration: 4000 });
+            }
+          });
+        }
+
+      } catch (error) {
+        console.error('Frame processing error:', error);
+      }
+    }, 2000); // Process every 2 seconds
+  };
+
+  const stopMonitoring = () => {
+    if (monitoringInterval.current) {
+      clearInterval(monitoringInterval.current);
+      monitoringInterval.current = null;
+    }
+    setIsMonitoring(false);
+  };
+
+  const endExam = async () => {
+    if (!session) return;
 
     try {
-      // Save all answers
-      await handleSaveDraft();
-
-      // Update exam status
-      await supabase
-        .from('exams')
-        .update({ 
-          status: 'completed',
-          completed_at: new Date().toISOString()
-        })
-        .eq('id', examId);
-
-      toast.success("Exam submitted successfully!");
+      stopMonitoring();
+      await api.endSession(session.id);
+      cleanup();
       
-      // Stop camera
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
+      toast.success("Exam ended successfully!");
+      navigate('/');
+    } catch (error: any) {
+      console.error('End exam error:', error);
+      toast.error("Failed to end exam properly");
+    }
+  };
 
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    } catch (error) {
-      console.error('Error submitting exam:', error);
-      toast.error("Failed to submit exam");
+  const cleanup = () => {
+    stopMonitoring();
+    if (stream) {
+      stopWebcam(stream);
+    }
+    if (wsRef.current) {
+      wsRef.current.close();
     }
   };
 
   const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!studentData) return null;
+  const getViolationIcon = (type: string) => {
+    switch (type) {
+      case 'Looking Away':
+        return <Eye className="w-4 h-4" />;
+      case 'Multiple People':
+        return <User2 className="w-4 h-4" />;
+      case 'Phone Detected':
+        return <Smartphone className="w-4 h-4" />;
+      case 'Book Detected':
+        return <Book className="w-4 h-4" />;
+      default:
+        return <AlertTriangle className="w-4 h-4" />;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b sticky top-0 bg-background z-10">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-background p-4">
+      <div className="container mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <Shield className="w-6 h-6 text-primary-foreground" />
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+              <Shield className="w-7 h-7 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="font-bold">ExamEye Shield</h1>
-              <p className="text-xs text-muted-foreground">Exam in Progress</p>
+              <h1 className="text-xl font-bold">Proctored Exam</h1>
+              <p className="text-sm text-muted-foreground">
+                {studentData?.name} ({studentData?.student_id})
+              </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground">Subject Code</p>
-            <p className="text-sm font-mono font-semibold">{studentData.subjectCode}</p>
-          </div>
-        </div>
-      </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Exam Questions</h2>
-                
-                <div className="space-y-8">
-                  {questions.map((question, index) => (
-                    <div key={question.id} className="space-y-3">
-                      <div>
-                        <h3 className="font-semibold mb-1">Question {index + 1}</h3>
-                        <p className="text-muted-foreground">{question.text}</p>
-                      </div>
-                      <Textarea
-                        placeholder="Type your answer here..."
-                        value={answers[question.id] || ''}
-                        onChange={(e) => setAnswers({ ...answers, [question.id]: e.target.value })}
-                        rows={6}
-                        className="resize-none"
-                      />
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex gap-4 mt-8">
-                  <Button variant="outline" onClick={handleSaveDraft} className="flex-1">
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Draft
-                  </Button>
-                  <Button onClick={handleSubmit} className="flex-1">
-                    Submit Exam
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="flex items-center gap-4">
             {/* Timer */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Clock className="w-5 h-5 text-primary" />
-                  <h3 className="font-semibold">Time Remaining</h3>
-                </div>
-                <div className="text-3xl font-bold font-mono text-center">
-                  {formatTime(timeRemaining)}
-                </div>
+              <CardContent className="p-3 flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span className="font-mono font-semibold">{formatTime(examTime)}</span>
               </CardContent>
             </Card>
 
-            {/* Camera Status */}
+            {/* End Exam Button */}
+            <Button onClick={endExam} variant="destructive">
+              <LogOut className="w-4 h-4 mr-2" />
+              End Exam
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main Content - Exam Area */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Exam Paper Card */}
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  {cameraActive ? (
-                    <Video className="w-5 h-5 text-success" />
-                  ) : (
-                    <VideoOff className="w-5 h-5 text-destructive" />
-                  )}
-                  <h3 className="font-semibold">Camera Status</h3>
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold mb-6">Examination Paper</h2>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3">Question 1:</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Explain the concept of artificial intelligence and its applications in modern proctoring systems.
+                    </p>
+                    <textarea
+                      className="w-full min-h-[120px] p-3 border rounded-md"
+                      placeholder="Type your answer here..."
+                    />
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3">Question 2:</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Describe how computer vision techniques can be used for real-time monitoring.
+                    </p>
+                    <textarea
+                      className="w-full min-h-[120px] p-3 border rounded-md"
+                      placeholder="Type your answer here..."
+                    />
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3">Question 3:</h3>
+                    <p className="text-muted-foreground mb-4">
+                      What are the ethical considerations in AI-powered proctoring systems?
+                    </p>
+                    <textarea
+                      className="w-full min-h-[120px] p-3 border rounded-md"
+                      placeholder="Type your answer here..."
+                    />
+                  </div>
                 </div>
-                
-                <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-3">
-                  <video 
-                    ref={videoRef} 
-                    autoPlay 
-                    muted 
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar - Monitoring Info */}
+          <div className="space-y-6">
+            {/* Webcam Preview */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Camera className="w-4 h-4" />
+                    Live Monitoring
+                  </h3>
+                  {isMonitoring && (
+                    <Badge variant="destructive" className="animate-pulse">
+                      LIVE
+                    </Badge>
+                  )}
+                </div>
+                <div className="aspect-video bg-black rounded-lg overflow-hidden">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
                     className="w-full h-full object-cover"
                   />
                 </div>
+              </CardContent>
+            </Card>
 
-                <p className="text-xs text-center text-muted-foreground">
-                  {cameraActive ? "Camera Active" : "Camera Inactive"}
-                </p>
+            {/* Current Violations */}
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4" />
+                  Active Alerts
+                </h3>
+                {currentViolations.length > 0 ? (
+                  <div className="space-y-2">
+                    {currentViolations.map((violation, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm p-2 bg-destructive/10 rounded">
+                        {getViolationIcon(violation)}
+                        <span className="text-destructive font-medium">{violation}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No violations detected</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Violation Counter */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-destructive mb-1">
+                    {violationCount}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Total Violations
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Warnings */}
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="font-semibold mb-3">Recent Warnings</h3>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {warnings.length > 0 ? (
+                    warnings.map((warning, idx) => (
+                      <div key={idx} className="text-xs p-2 bg-muted rounded">
+                        <div className="flex items-center justify-between mb-1">
+                          <Badge variant="outline" className="text-xs">{warning.type}</Badge>
+                          <span className="text-muted-foreground">{warning.time}</span>
+                        </div>
+                        <p className="text-muted-foreground">{warning.message}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-muted-foreground">No warnings yet</p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
