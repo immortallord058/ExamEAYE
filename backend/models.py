@@ -144,3 +144,31 @@ class ViolationAlert(BaseModel):
     message: str
     timestamp: datetime
     snapshot_url: Optional[str] = None
+
+# Browser-based Violation Models
+class BrowserViolationRequest(BaseModel):
+    session_id: str
+    violation_type: str  # copy_paste, tab_switch
+    message: str
+
+# Statistics Models
+class ViolationTimePoint(BaseModel):
+    timestamp: datetime
+    count: int
+
+class StudentStatistics(BaseModel):
+    student_id: str
+    student_name: str
+    total_violations: int
+    avg_violations_per_session: float
+    total_sessions: int
+    avg_session_duration_minutes: float
+    violation_breakdown: Dict[str, int]
+    violations_over_time: List[ViolationTimePoint]
+
+class AverageStatistics(BaseModel):
+    avg_violations_per_student: float
+    avg_exam_duration_minutes: float
+    avg_violation_types: Dict[str, float]
+    total_students: int
+    total_sessions: int
