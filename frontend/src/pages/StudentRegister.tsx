@@ -132,7 +132,7 @@ const StudentRegister = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5"></div>
-                You'll receive a unique exam code
+                You'll receive a unique student ID
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5"></div>
