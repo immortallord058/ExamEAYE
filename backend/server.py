@@ -18,7 +18,8 @@ from models import (
     FrameProcessRequest, FrameProcessResponse,
     CalibrationRequest, CalibrationResponse,
     EnvironmentCheckRequest, EnvironmentCheck,
-    SessionStats, StudentViolationSummary
+    SessionStats, StudentViolationSummary,
+    BrowserViolationRequest, StudentStatistics, AverageStatistics, ViolationTimePoint
 )
 from proctoring_service import proctoring_service
 from supabase_service import supabase_service
