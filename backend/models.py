@@ -59,7 +59,7 @@ class Violation(BaseModel):
     student_id: str
     student_name: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    violation_type: str  # looking_away, multiple_faces, phone_detected, book_detected
+    violation_type: str  # looking_away, multiple_faces, phone_detected, book_detected, no_person, copy_paste, tab_switch
     severity: str  # low, medium, high
     message: str
     snapshot_url: Optional[str] = None  # Supabase URL
