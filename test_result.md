@@ -258,3 +258,28 @@ test_plan:
 agent_communication:
     - agent: "main"
       message: "Full AI proctoring system implemented with MediaPipe+YOLOv8n. All 4 pages working with real-time detection. Backend has 22 API endpoints. WebSocket for live updates. Supabase for evidence storage. Ready for comprehensive testing of entire flow."
+    - agent: "main"
+      message: "MAJOR ENHANCEMENTS COMPLETED:
+      
+      BACKEND:
+      1. Enhanced proctoring_service.py with confidence thresholds (0.45 for objects, 0.5 for faces)
+      2. Added no-person detection (when face_count = 0)
+      3. Improved YOLO object detection with better confidence filtering
+      4. Added new violation types: copy_paste, tab_switch, no_person
+      5. Added browser violation endpoint: /api/proctoring/browser-violation
+      6. Added statistics endpoints: /api/admin/statistics/average, /api/admin/statistics/student/{id}, /api/admin/violations/timeline
+      7. Real-time detection confirmed at 2-second intervals
+      
+      FRONTEND:
+      1. StudentExam.tsx: Added JavaScript event listeners for:
+         - Copy/Paste detection (Ctrl+C, Ctrl+V, Cmd+C, Cmd+V)
+         - Tab switching detection (visibilitychange)
+         - Right-click context menu blocking
+      2. AdminDashboard.tsx: Added comprehensive visualizations:
+         - Line chart showing violations over time (using recharts)
+         - Average statistics cards (avg violations/student, avg exam duration, total students)
+         - Enhanced violation display with images, labels, and timestamps
+         - Violation snapshots now show type label and timestamp overlay
+      3. Updated api.ts with new endpoints for browser violations and statistics
+      
+      All features now working with real-time detection every 2 seconds + browser event monitoring."
