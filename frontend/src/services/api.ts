@@ -58,6 +58,7 @@ export interface FrameProcessResult {
   face_count: number;
   looking_away: boolean;
   multiple_faces: boolean;
+  no_person: boolean;
   phone_detected: boolean;
   book_detected: boolean;
   snapshot_base64?: string;
