@@ -321,6 +321,58 @@ async def process_frame(request: FrameProcessRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.post("/proctoring/browser-violation")
+async def report_browser_violation(request: BrowserViolationRequest):
+    """Report browser-based violations (copy/paste, tab switching)"""
+    try:
+        session = await db.exam_sessions.find_one({"id": request.session_id})
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Create violation record
+        violation = Violation(
+            session_id=request.session_id,
+            student_id=session['student_id'],
+            student_name=session['student_name'],
+            violation_type=request.violation_type,
+            severity='medium',
+            message=request.message,
+            snapshot_url=None,  # No snapshot for browser violations
+            head_pose=None
+        )
+        
+        await db.violations.insert_one(violation.dict())
+        
+        # Update session violation count
+        await db.exam_sessions.update_one(
+            {"id": request.session_id},
+            {"$inc": {"violation_count": 1}}
+        )
+        
+        # Broadcast violation alert to admins via WebSocket
+        await ws_manager.broadcast_violation_alert({
+            'session_id': request.session_id,
+            'student_id': session['student_id'],
+            'student_name': session['student_name'],
+            'violation_type': request.violation_type,
+            'severity': 'medium',
+            'message': request.message,
+            'snapshot_url': None,
+            'timestamp': violation.timestamp.isoformat()
+        })
+        
+        logger.info(f"Browser violation detected: {request.violation_type} - {session['student_name']}")
+        
+        return {"message": "Violation recorded", "violation_id": violation.id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Browser violation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 # ============================================================================
 # VIOLATION ENDPOINTS
 # ============================================================================
