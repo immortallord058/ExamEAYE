@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Shield, Users, AlertTriangle, CheckCircle, Activity, Eye, 
-  Smartphone, User2, Clock, LogOut, Download, RefreshCw
+  Smartphone, User2, Clock, LogOut, Download, RefreshCw, TrendingUp, BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { api, ExamSession, Violation, createWebSocket } from "@/services/api";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface ViolationAlert {
   session_id: string;
