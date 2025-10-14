@@ -429,6 +429,161 @@ async def get_all_sessions():
     return [ExamSession(**session) for session in sessions]
 
 
+
+@api_router.get("/admin/statistics/average", response_model=AverageStatistics)
+async def get_average_statistics():
+    """Get average statistics across all students"""
+    try:
+        # Get all students
+        students = await db.students.find().to_list(1000)
+        total_students = len(students)
+        
+        if total_students == 0:
+            return AverageStatistics(
+                avg_violations_per_student=0,
+                avg_exam_duration_minutes=0,
+                avg_violation_types={},
+                total_students=0,
+                total_sessions=0
+            )
+        
+        # Get all sessions
+        sessions = await db.exam_sessions.find().to_list(1000)
+        total_sessions = len(sessions)
+        
+        # Calculate average violations per student
+        total_violations = await db.violations.count_documents({})
+        avg_violations_per_student = total_violations / total_students if total_students > 0 else 0
+        
+        # Calculate average exam duration
+        total_duration_minutes = 0
+        completed_sessions = 0
+        for session in sessions:
+            if session.get('end_time') and session.get('start_time'):
+                duration = (session['end_time'] - session['start_time']).total_seconds() / 60
+                total_duration_minutes += duration
+                completed_sessions += 1
+        
+        avg_exam_duration_minutes = total_duration_minutes / completed_sessions if completed_sessions > 0 else 0
+        
+        # Calculate average violation types
+        violations = await db.violations.find().to_list(10000)
+        violation_type_counts = {}
+        for v in violations:
+            v_type = v.get('violation_type', 'unknown')
+            violation_type_counts[v_type] = violation_type_counts.get(v_type, 0) + 1
+        
+        avg_violation_types = {
+            v_type: count / total_students 
+            for v_type, count in violation_type_counts.items()
+        }
+        
+        return AverageStatistics(
+            avg_violations_per_student=round(avg_violations_per_student, 2),
+            avg_exam_duration_minutes=round(avg_exam_duration_minutes, 2),
+            avg_violation_types=avg_violation_types,
+            total_students=total_students,
+            total_sessions=total_sessions
+        )
+    except Exception as e:
+        logger.error(f"Average statistics error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/admin/statistics/student/{student_id}", response_model=StudentStatistics)
+async def get_student_statistics(student_id: str):
+    """Get detailed statistics for a specific student"""
+    try:
+        # Get student
+        student = await db.students.find_one({"student_id": student_id})
+        if not student:
+            raise HTTPException(status_code=404, detail="Student not found")
+        
+        # Get all sessions for this student
+        sessions = await db.exam_sessions.find({"student_id": student_id}).to_list(1000)
+        total_sessions = len(sessions)
+        
+        # Get all violations for this student
+        violations = await db.violations.find({"student_id": student_id}).to_list(10000)
+        total_violations = len(violations)
+        
+        # Calculate average violations per session
+        avg_violations_per_session = total_violations / total_sessions if total_sessions > 0 else 0
+        
+        # Calculate average session duration
+        total_duration_minutes = 0
+        for session in sessions:
+            if session.get('end_time') and session.get('start_time'):
+                duration = (session['end_time'] - session['start_time']).total_seconds() / 60
+                total_duration_minutes += duration
+        
+        avg_session_duration_minutes = total_duration_minutes / total_sessions if total_sessions > 0 else 0
+        
+        # Violation breakdown by type
+        violation_breakdown = {}
+        for v in violations:
+            v_type = v.get('violation_type', 'unknown')
+            violation_breakdown[v_type] = violation_breakdown.get(v_type, 0) + 1
+        
+        # Violations over time (grouped by hour)
+        violations_by_time = {}
+        for v in violations:
+            timestamp = v.get('timestamp')
+            if timestamp:
+                # Group by hour
+                hour_key = timestamp.replace(minute=0, second=0, microsecond=0)
+                violations_by_time[hour_key] = violations_by_time.get(hour_key, 0) + 1
+        
+        violations_over_time = [
+            ViolationTimePoint(timestamp=ts, count=count)
+            for ts, count in sorted(violations_by_time.items())
+        ]
+        
+        return StudentStatistics(
+            student_id=student_id,
+            student_name=student.get('name', 'Unknown'),
+            total_violations=total_violations,
+            avg_violations_per_session=round(avg_violations_per_session, 2),
+            total_sessions=total_sessions,
+            avg_session_duration_minutes=round(avg_session_duration_minutes, 2),
+            violation_breakdown=violation_breakdown,
+            violations_over_time=violations_over_time
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Student statistics error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/admin/violations/timeline")
+async def get_violations_timeline(limit: int = 100):
+    """Get violations timeline for line chart (all students)"""
+    try:
+        violations = await db.violations.find().sort("timestamp", 1).limit(limit).to_list(limit)
+        
+        # Group by time intervals (every 5 minutes)
+        violations_by_time = {}
+        for v in violations:
+            timestamp = v.get('timestamp')
+            if timestamp:
+                # Round to 5-minute intervals
+                minute = (timestamp.minute // 5) * 5
+                time_key = timestamp.replace(minute=minute, second=0, microsecond=0)
+                violations_by_time[time_key] = violations_by_time.get(time_key, 0) + 1
+        
+        timeline = [
+            {"timestamp": ts.isoformat(), "count": count}
+            for ts, count in sorted(violations_by_time.items())
+        ]
+        
+        return {"timeline": timeline}
+    except Exception as e:
+        logger.error(f"Violations timeline error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 # ============================================================================
 # WEBSOCKET ENDPOINTS
 # ============================================================================
