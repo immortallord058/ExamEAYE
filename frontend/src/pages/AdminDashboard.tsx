@@ -279,6 +279,20 @@ const AdminDashboard = () => {
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => window.open(api.exportSummaryCSV(), '_blank')}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => window.open(api.exportReportHTML(), '_blank')}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export Report
+            </Button>
             <Button variant="outline" onClick={handleLogout}>
               <LogOut className="w-4 h-4 mr-2" />
               Logout
