@@ -522,11 +522,16 @@ const AdminDashboard = () => {
                               </div>
                             </div>
                             {violation.snapshot_url && (
-                              <img 
-                                src={violation.snapshot_url} 
-                                alt="Violation snapshot"
-                                className="mt-3 w-full h-32 object-cover rounded-lg"
-                              />
+                              <div className="mt-3 relative">
+                                <img 
+                                  src={violation.snapshot_url} 
+                                  alt="Violation snapshot"
+                                  className="w-full h-48 object-cover rounded-lg"
+                                />
+                                <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                  {getViolationLabel(violation.violation_type)} - {new Date(violation.timestamp).toLocaleString()}
+                                </div>
+                              </div>
                             )}
                           </CardContent>
                         </Card>
