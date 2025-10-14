@@ -599,6 +599,67 @@ async def websocket_admin(websocket: WebSocket):
             # Keep connection alive and receive messages
             data = await websocket.receive_text()
             # Admin can send commands if needed
+
+
+@api_router.get("/admin/export/violations/csv")
+async def export_violations_csv(session_id: Optional[str] = None, student_id: Optional[str] = None):
+    """Export violations to CSV"""
+    try:
+        if session_id:
+            violations = await db.violations.find({"session_id": session_id}).to_list(10000)
+        elif student_id:
+            violations = await db.violations.find({"student_id": student_id}).to_list(10000)
+        else:
+            violations = await db.violations.find().to_list(10000)
+        
+        csv_content = export_service.export_violations_csv(violations)
+        
+        return StreamingResponse(
+            iter([csv_content]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=violations_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"}
+        )
+    except Exception as e:
+        logger.error(f"Export CSV error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/admin/export/summary/csv")
+async def export_summary_csv():
+    """Export summary report to CSV"""
+    try:
+        sessions = await db.exam_sessions.find().to_list(10000)
+        violations = await db.violations.find().to_list(10000)
+        students = await db.students.find().to_list(10000)
+        
+        csv_content = export_service.export_summary_csv(sessions, violations, students)
+        
+        return StreamingResponse(
+            iter([csv_content]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=exam_summary_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"}
+        )
+    except Exception as e:
+        logger.error(f"Export summary CSV error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/admin/export/report/html", response_class=HTMLResponse)
+async def export_report_html():
+    """Export summary report as HTML (can be printed to PDF)"""
+    try:
+        sessions = await db.exam_sessions.find().to_list(10000)
+        violations = await db.violations.find().to_list(10000)
+        students = await db.students.find().to_list(10000)
+        
+        html_content = export_service.generate_html_report(sessions, violations, students)
+        
+        return HTMLResponse(content=html_content)
+    except Exception as e:
+        logger.error(f"Export HTML error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
     except WebSocketDisconnect:
         ws_manager.disconnect_admin(websocket)
 
