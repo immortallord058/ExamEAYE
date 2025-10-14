@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/services/api";
 
 const StudentRegister = () => {
   const navigate = useNavigate();
@@ -27,46 +27,22 @@ const StudentRegister = () => {
     setLoading(true);
 
     try {
-      // Generate subject code
-      const { data: codeData, error: codeError } = await supabase.rpc('generate_subject_code');
-      
-      if (codeError) throw codeError;
-      
-      const subjectCode = codeData;
+      // Register student via FastAPI backend
+      const studentData = await api.registerStudent(
+        formData.name.trim(),
+        formData.email.trim()
+      );
 
-      // Insert student
-      const { data: studentData, error: studentError } = await supabase
-        .from('students')
-        .insert({
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          subject_code: subjectCode,
-        })
-        .select()
-        .single();
-
-      if (studentError) throw studentError;
-
-      // Create exam session
-      const { error: examError } = await supabase
-        .from('exams')
-        .insert({
-          student_id: studentData.id,
-          subject_code: subjectCode,
-          status: 'not_started',
-        });
-
-      if (examError) throw examError;
-
-      toast.success(`Registration successful! Your Subject Code: ${subjectCode}`, {
+      toast.success(`Registration successful! Your Student ID: ${studentData.student_id}`, {
         duration: 5000,
       });
 
-      // Store in session for next steps
+      // Store in session storage for next steps
       sessionStorage.setItem('studentData', JSON.stringify({
         id: studentData.id,
+        student_id: studentData.student_id,
         name: studentData.name,
-        subjectCode: subjectCode,
+        email: studentData.email,
       }));
 
       setTimeout(() => {
