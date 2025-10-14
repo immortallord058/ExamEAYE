@@ -2,7 +2,7 @@
 
 # Test script for ExamEye Shield API endpoints
 
-BASE_URL="https://site-runner-4.preview.emergentagent.com/api"
+BASE_URL="https://codeimporter.preview.emergentagent.com/api"
 
 echo "🧪 Testing ExamEye Shield API Endpoints"
 echo "========================================"
@@ -46,6 +46,6 @@ echo ""
 echo "========================================"
 echo "🎉 API Test Complete!"
 echo ""
-echo "Frontend URL: https://site-runner-4.preview.emergentagent.com"
+echo "Frontend URL: https://codeimporter.preview.emergentagent.com"
 echo "Backend API: $BASE_URL"
 echo ""

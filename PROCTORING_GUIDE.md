@@ -358,7 +358,7 @@ SUPABASE_KEY=eyJ...
 
 **Frontend (.env):**
 ```
-REACT_APP_BACKEND_URL=https://site-runner-4.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://codeimporter.preview.emergentagent.com
 ```
 
 ## 🎯 Key Metrics
