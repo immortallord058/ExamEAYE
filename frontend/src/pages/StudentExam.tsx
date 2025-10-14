@@ -60,6 +60,75 @@ const StudentExam = () => {
     }
   }, [isMonitoring]);
 
+  useEffect(() => {
+    // Browser event monitoring: Copy/Paste and Tab Switching
+    if (!session) return;
+
+    const handleCopyPaste = async (e: KeyboardEvent) => {
+      // Detect Ctrl+C, Ctrl+V, Cmd+C, Cmd+V
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v')) {
+        const action = e.key === 'c' ? 'Copy' : 'Paste';
+        toast.warning(`${action} attempt detected!`, { duration: 3000 });
+        
+        try {
+          await api.reportBrowserViolation(
+            session.id,
+            'copy_paste',
+            `Student attempted to ${action.toLowerCase()} content`
+          );
+          setViolationCount(prev => prev + 1);
+          setWarnings(prev => [{
+            type: 'copy_paste',
+            message: `${action} attempt detected`,
+            time: new Date().toLocaleTimeString()
+          }, ...prev].slice(0, 10));
+        } catch (error) {
+          console.error('Failed to report copy/paste violation:', error);
+        }
+      }
+    };
+
+    const handleVisibilityChange = async () => {
+      if (document.hidden) {
+        toast.error('Tab switching detected! This is a violation.', { duration: 5000 });
+        
+        try {
+          await api.reportBrowserViolation(
+            session.id,
+            'tab_switch',
+            'Student switched tabs or minimized browser'
+          );
+          setViolationCount(prev => prev + 1);
+          setWarnings(prev => [{
+            type: 'tab_switch',
+            message: 'Tab switching detected',
+            time: new Date().toLocaleTimeString()
+          }, ...prev].slice(0, 10));
+        } catch (error) {
+          console.error('Failed to report tab switch violation:', error);
+        }
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      toast.warning('Right-click is disabled during exam', { duration: 2000 });
+    };
+
+    // Add event listeners
+    document.addEventListener('keydown', handleCopyPaste);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleCopyPaste);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('contextmenu', handleContextMenu);
+    };
+  }, [session]);
+
+
   const initializeExam = async () => {
     try {
       if (!videoRef.current) return;
