@@ -1,6 +1,6 @@
 // API service for ExamEye Shield backend communication
 
-const API_URL = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 // Types
 export interface Student {
