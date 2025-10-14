@@ -15,11 +15,18 @@ class ProctoringService:
     
     def __init__(self):
         # Initialize MediaPipe
-        self.mp_face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True)
-        self.mp_face_detection = mp.solutions.face_detection.FaceDetection()
+        self.mp_face_mesh = mp.solutions.face_mesh.FaceMesh(
+            refine_landmarks=True,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5
+        )
+        self.mp_face_detection = mp.solutions.face_detection.FaceDetection(
+            min_detection_confidence=0.5
+        )
         
-        # Initialize YOLO model
+        # Initialize YOLO model with optimized settings
         self.yolo_model = YOLO('models/yolov8n.pt')
+        self.yolo_model.conf = 0.45  # Confidence threshold
         
         # 3D Model points for head pose estimation
         self.model_points = np.array([
@@ -34,6 +41,10 @@ class ProctoringService:
         # Thresholds (increased by 35% for leniency)
         self.MAX_YAW_OFFSET = 110 * 1.35
         self.MAX_PITCH_OFFSET = 140 * 1.35
+        
+        # Detection confidence thresholds
+        self.OBJECT_CONFIDENCE_THRESHOLD = 0.45
+        self.FACE_CONFIDENCE_THRESHOLD = 0.5
         
     def estimate_head_pose(self, landmarks, width: int, height: int) -> Optional[Tuple[float, float, float]]:
         """
