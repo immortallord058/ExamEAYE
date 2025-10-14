@@ -199,13 +199,32 @@ const AdminDashboard = () => {
         return <Eye className="w-4 h-4" />;
       case 'multiple_faces':
         return <User2 className="w-4 h-4" />;
+      case 'no_person':
+        return <User2 className="w-4 h-4" />;
       case 'phone_detected':
         return <Smartphone className="w-4 h-4" />;
       case 'book_detected':
         return <AlertTriangle className="w-4 h-4" />;
+      case 'copy_paste':
+        return <AlertTriangle className="w-4 h-4" />;
+      case 'tab_switch':
+        return <AlertTriangle className="w-4 h-4" />;
       default:
         return <AlertTriangle className="w-4 h-4" />;
     }
+  };
+
+  const getViolationLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      'looking_away': 'Looking Away',
+      'multiple_faces': 'Multiple People',
+      'no_person': 'No Person',
+      'phone_detected': 'Phone Detected',
+      'book_detected': 'Book Detected',
+      'copy_paste': 'Copy/Paste Attempt',
+      'tab_switch': 'Tab Switching'
+    };
+    return labels[type] || type.replace('_', ' ');
   };
 
   const getSeverityColor = (severity: string) => {
