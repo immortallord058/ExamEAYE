@@ -195,6 +195,41 @@ export const api = {
     return response.json();
   },
 
+  // Browser violation reporting
+  reportBrowserViolation: async (
+    sessionId: string,
+    violationType: string,
+    message: string
+  ): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/proctoring/browser-violation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessionId,
+        violation_type: violationType,
+        message: message,
+      }),
+    });
+    if (!response.ok) throw new Error('Failed to report browser violation');
+    return response.json();
+  },
+
+  // Statistics endpoints
+  getAverageStatistics: async (): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/admin/statistics/average`);
+    return response.json();
+  },
+
+  getStudentStatistics: async (studentId: string): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/admin/statistics/student/${studentId}`);
+    return response.json();
+  },
+
+  getViolationsTimeline: async (limit: number = 100): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/admin/violations/timeline?limit=${limit}`);
+    return response.json();
+  },
+
   // Health check
   healthCheck: async (): Promise<any> => {
     const response = await fetch(`${API_URL}/api/health`);
