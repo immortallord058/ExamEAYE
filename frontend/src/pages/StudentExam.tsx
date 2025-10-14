@@ -209,6 +209,7 @@ const StudentExam = () => {
 
         // Update current violations
         const activeViolations: string[] = [];
+        if (result.no_person) activeViolations.push('No Person');
         if (result.looking_away) activeViolations.push('Looking Away');
         if (result.multiple_faces) activeViolations.push('Multiple People');
         if (result.phone_detected) activeViolations.push('Phone Detected');
