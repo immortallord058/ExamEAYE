@@ -115,11 +115,11 @@ const StudentRegister = () => {
               </div>
 
               <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? "Registering..." : "Register & Get Exam Code"}
+                {loading ? "Registering..." : "Register & Get Student ID"}
               </Button>
 
               <p className="text-xs text-center text-muted-foreground">
-                Your subject code will be auto-generated and displayed after registration
+                Your student ID will be auto-generated and displayed after registration
               </p>
             </form>
           </CardContent>
