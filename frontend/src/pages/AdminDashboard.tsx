@@ -136,15 +136,19 @@ const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [statsData, sessionsData, violationsData] = await Promise.all([
+      const [statsData, sessionsData, violationsData, avgStatsData, timelineData] = await Promise.all([
         api.getAdminStats(),
         api.getActiveSessions(),
-        api.getRecentViolations(50)
+        api.getRecentViolations(50),
+        api.getAverageStatistics(),
+        api.getViolationsTimeline(100)
       ]);
 
       setStats(statsData);
       setActiveSessions(sessionsData);
       setRecentViolations(violationsData);
+      setAverageStats(avgStatsData);
+      setViolationsTimeline(timelineData.timeline || []);
       setLoading(false);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
