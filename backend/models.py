@@ -90,6 +90,7 @@ class FrameProcessResponse(BaseModel):
     face_count: int
     looking_away: bool
     multiple_faces: bool
+    no_person: bool
     phone_detected: bool
     book_detected: bool
     snapshot_base64: Optional[str] = None
