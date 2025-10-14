@@ -110,30 +110,55 @@ class ProctoringService:
         }
         
         try:
-            yolo_results = self.yolo_model(frame, stream=True, verbose=False)
+            # Run YOLO detection with confidence threshold
+            yolo_results = self.yolo_model(
+                frame, 
+                stream=True, 
+                verbose=False,
+                conf=self.OBJECT_CONFIDENCE_THRESHOLD
+            )
             
             for result in yolo_results:
+                if result.boxes is None or len(result.boxes) == 0:
+                    continue
+                    
                 for box in result.boxes:
                     cls = result.names[int(box.cls[0])]
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])
                     confidence = float(box.conf[0])
                     
-                    if cls in ["cell phone", "book"]:
+                    # Only process if confidence meets threshold
+                    if confidence < self.OBJECT_CONFIDENCE_THRESHOLD:
+                        continue
+                    
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    
+                    # Detect cell phone (including variations)
+                    if cls in ["cell phone", "phone", "mobile"]:
                         detections['objects'].append({
-                            'type': cls,
+                            'type': 'cell phone',
                             'confidence': confidence,
                             'bbox': [x1, y1, x2, y2]
                         })
-                        
-                        if cls == "cell phone":
-                            detections['phone_detected'] = True
-                        elif cls == "book":
-                            detections['book_detected'] = True
+                        detections['phone_detected'] = True
                         
                         # Draw bounding box
-                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-                        cv2.putText(frame, f"{cls} {confidence:.2f}", (x1, y1 - 10),
-                                  cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 255), 3)
+                        cv2.putText(frame, f"PHONE {confidence:.2f}", (x1, y1 - 10),
+                                  cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                    
+                    # Detect book
+                    elif cls == "book":
+                        detections['objects'].append({
+                            'type': 'book',
+                            'confidence': confidence,
+                            'bbox': [x1, y1, x2, y2]
+                        })
+                        detections['book_detected'] = True
+                        
+                        # Draw bounding box
+                        cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 3)
+                        cv2.putText(frame, f"BOOK {confidence:.2f}", (x1, y1 - 10),
+                                  cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
         except Exception as e:
             print(f"Object detection error: {e}")
         
