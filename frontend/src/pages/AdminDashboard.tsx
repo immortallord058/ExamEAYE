@@ -37,6 +37,8 @@ const AdminDashboard = () => {
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
   const [sessionViolations, setSessionViolations] = useState<Violation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [averageStats, setAverageStats] = useState<any>(null);
+  const [violationsTimeline, setViolationsTimeline] = useState<any[]>([]);
   
   const wsRef = useRef<WebSocket | null>(null);
 
