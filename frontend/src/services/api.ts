@@ -2,6 +2,9 @@
 
 const API_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
+// Debug: Log API URL
+console.log('🔗 API URL:', API_URL);
+
 // Types
 export interface Student {
   id: string;
