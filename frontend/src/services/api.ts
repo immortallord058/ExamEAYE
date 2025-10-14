@@ -231,6 +231,22 @@ export const api = {
     return response.json();
   },
 
+  // Export endpoints
+  exportViolationsCSV: (sessionId?: string, studentId?: string): string => {
+    const params = new URLSearchParams();
+    if (sessionId) params.append('session_id', sessionId);
+    if (studentId) params.append('student_id', studentId);
+    return `${API_URL}/api/admin/export/violations/csv?${params.toString()}`;
+  },
+
+  exportSummaryCSV: (): string => {
+    return `${API_URL}/api/admin/export/summary/csv`;
+  },
+
+  exportReportHTML: (): string => {
+    return `${API_URL}/api/admin/export/report/html`;
+  },
+
   // Health check
   healthCheck: async (): Promise<any> => {
     const response = await fetch(`${API_URL}/api/health`);
