@@ -599,6 +599,8 @@ async def websocket_admin(websocket: WebSocket):
             # Keep connection alive and receive messages
             data = await websocket.receive_text()
             # Admin can send commands if needed
+    except WebSocketDisconnect:
+        ws_manager.disconnect_admin(websocket)
 
 
 @api_router.get("/admin/export/violations/csv")
