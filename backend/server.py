@@ -24,6 +24,8 @@ from models import (
 from proctoring_service import proctoring_service
 from supabase_service import supabase_service
 from websocket_manager import ws_manager
+from export_service import export_service
+from fastapi.responses import StreamingResponse, HTMLResponse
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
