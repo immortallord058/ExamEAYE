@@ -231,6 +231,12 @@ export const api = {
     return response.json();
   },
 
+  // Student evidence
+  getStudentEvidence: async (studentId: string): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/admin/student/${studentId}/evidence`);
+    return response.json();
+  },
+
   // Export endpoints
   exportViolationsCSV: (sessionId?: string, studentId?: string): string => {
     const params = new URLSearchParams();
