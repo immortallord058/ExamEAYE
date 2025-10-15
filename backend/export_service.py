@@ -282,12 +282,14 @@ class ExportService:
                 
                 # Add image
                 if v.get('snapshot_url'):
-                    html_parts.append(f'<img src="{v.get("snapshot_url")}" class="violation-image" alt="Violation Evidence">')
+                    html_parts.append(f'<p><strong>Evidence Photo:</strong></p><img src="{v.get("snapshot_url")}" class="violation-image" alt="Violation Evidence">')
                 elif v.get('snapshot_base64'):
                     snapshot_base64 = v.get('snapshot_base64')
                     if not snapshot_base64.startswith('data:'):
                         snapshot_base64 = f"data:image/jpeg;base64,{snapshot_base64}"
-                    html_parts.append(f'<img src="{snapshot_base64}" class="violation-image" alt="Violation Evidence">')
+                    html_parts.append(f'<p><strong>Evidence Photo:</strong></p><img src="{snapshot_base64}" class="violation-image" alt="Violation Evidence">')
+                else:
+                    html_parts.append('<div class="no-image"><p><strong>⚠️ No evidence photo available for this violation</strong></p><p>This violation was detected through browser events (copy/paste, tab switching, or audio) which do not capture camera snapshots.</p></div>')
                 
                 html_parts.append('</div>')
             
