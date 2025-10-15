@@ -370,8 +370,8 @@ const AdminDashboard = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Avg Exam Duration</p>
-                    <p className="text-3xl font-bold">{averageStats.avg_exam_duration_minutes.toFixed(0)} min</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">Avg Exam Duration</p>
+                    <p className="text-3xl font-bold text-foreground">{averageStats.avg_exam_duration_minutes.toFixed(0)} min</p>
                   </div>
                   <Clock className="w-8 h-8 text-purple-500" />
                 </div>
