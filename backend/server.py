@@ -645,6 +645,59 @@ async def get_student_statistics(student_id: str):
         total_sessions = len(sessions)
         
         # Get all violations for this student
+
+
+@api_router.get("/admin/export/student/{student_id}/violations/csv")
+async def export_student_violations_csv(student_id: str):
+    """Export individual student violations to CSV"""
+    try:
+        student = await db.students.find_one({"student_id": student_id})
+        if not student:
+            raise HTTPException(status_code=404, detail="Student not found")
+        
+        violations = await db.violations.find({"student_id": student_id}).to_list(10000)
+        
+        csv_content = export_service.export_student_violations_csv(
+            student_id,
+            student.get('name', 'Unknown'),
+            violations
+        )
+        
+        return StreamingResponse(
+            iter([csv_content]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=violations_{student_id}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"}
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Export student CSV error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/admin/export/student/{student_id}/report/html", response_class=HTMLResponse)
+async def export_student_report_html(student_id: str):
+    """Export individual student report as HTML with violation images"""
+    try:
+        student = await db.students.find_one({"student_id": student_id})
+        if not student:
+            raise HTTPException(status_code=404, detail="Student not found")
+        
+        violations = await db.violations.find({"student_id": student_id}).sort("timestamp", -1).to_list(10000)
+        
+        html_content = export_service.generate_student_html_report(
+            student_id,
+            student.get('name', 'Unknown'),
+            violations
+        )
+        
+        return HTMLResponse(content=html_content)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Export student HTML error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
         violations = await db.violations.find({"student_id": student_id}).to_list(10000)
         total_violations = len(violations)
         
