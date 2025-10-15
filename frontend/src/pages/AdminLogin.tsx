@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
