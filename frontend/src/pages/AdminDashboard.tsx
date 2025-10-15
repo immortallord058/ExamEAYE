@@ -590,31 +590,6 @@ const AdminDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Recent Violations Section - keep as is but let me find the end first */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" />
-                  Recent Violations 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleViewSession(session.id)}
-                            >
-                              View Details
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-gray-600 dark:text-gray-400 py-8 font-medium">
-                    No active exam sessions
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Recent Violations */}
             <Card>
               <CardHeader>
