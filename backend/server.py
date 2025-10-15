@@ -295,6 +295,7 @@ async def process_frame(request: FrameProcessRequest):
                     severity=violation_detail['severity'],
                     message=violation_detail['message'],
                     snapshot_url=snapshot_url,
+                    snapshot_base64=snapshot_base64,
                     head_pose=result.get('head_pose')
                 )
                 
