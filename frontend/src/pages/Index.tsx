@@ -120,8 +120,8 @@ const Index = () => {
               <div className="w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
                 <Target className="w-7 h-7 text-destructive" />
               </div>
-              <h4 className="font-bold mb-2">AI-Powered Detection</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-bold mb-2 text-gray-900 dark:text-white">AI-Powered Detection</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                 Advanced YOLOv8 model for face, object, and behavior detection
               </p>
             </CardContent>
