@@ -486,11 +486,21 @@ const AdminDashboard = () => {
                       (violation.snapshot_base64?.startsWith('data:') 
                         ? violation.snapshot_base64 
                         : `data:image/jpeg;base64,${violation.snapshot_base64}`);
+                    
+                    const handleDownload = () => {
+                      const link = document.createElement('a');
+                      link.href = imageUrl;
+                      link.download = `violation_${violation.student_name}_${violation.violation_type}_${new Date(violation.timestamp).getTime()}.jpg`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    };
+                    
                     return (
                     <div 
                       key={violation.id} 
                       className="relative group cursor-pointer"
-                      onClick={() => window.open(imageUrl, '_blank')}
+                      onClick={handleDownload}
                     >
                       <div className="relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-all">
                         <img 
