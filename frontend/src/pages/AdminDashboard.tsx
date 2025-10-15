@@ -306,8 +306,8 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Sessions</p>
-                  <p className="text-3xl font-bold">{stats.total_sessions}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">Total Sessions</p>
+                  <p className="text-3xl font-bold text-foreground">{stats.total_sessions}</p>
                 </div>
                 <Activity className="w-8 h-8 text-blue-500" />
               </div>
