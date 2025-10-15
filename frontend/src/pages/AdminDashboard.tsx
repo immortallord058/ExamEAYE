@@ -594,14 +594,29 @@ const AdminDashboard = () => {
                               </div>
                             </div>
                             {(violation.snapshot_url || violation.snapshot_base64) && (
-                              <div className="mt-3 relative">
+                              <div className="mt-3 relative group">
                                 <img 
-                                  src={violation.snapshot_url || `data:image/jpeg;base64,${violation.snapshot_base64}`} 
+                                  src={
+                                    violation.snapshot_url || 
+                                    (violation.snapshot_base64?.startsWith('data:') 
+                                      ? violation.snapshot_base64 
+                                      : `data:image/jpeg;base64,${violation.snapshot_base64}`)
+                                  }
                                   alt="Violation snapshot"
-                                  className="w-full h-48 object-cover rounded-lg border-2 border-red-200 dark:border-red-800"
+                                  className="w-full h-48 object-cover rounded-lg border-2 border-red-200 dark:border-red-800 cursor-pointer hover:border-red-500 transition-all"
+                                  onClick={() => {
+                                    const imageUrl = violation.snapshot_url || 
+                                      (violation.snapshot_base64?.startsWith('data:') 
+                                        ? violation.snapshot_base64 
+                                        : `data:image/jpeg;base64,${violation.snapshot_base64}`);
+                                    window.open(imageUrl, '_blank');
+                                  }}
                                 />
-                                <div className="absolute top-2 left-2 bg-black/80 text-white px-3 py-1.5 rounded-md text-xs font-semibold">
+                                <div className="absolute top-2 left-2 bg-black/80 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-lg">
                                   {getViolationLabel(violation.violation_type)} - {new Date(violation.timestamp).toLocaleString()}
+                                </div>
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all rounded-lg flex items-center justify-center">
+                                  <Eye className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-all" />
                                 </div>
                               </div>
                             )}
