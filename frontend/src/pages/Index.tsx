@@ -15,8 +15,8 @@ const Index = () => {
             <Shield className="w-7 h-7 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">ExamEye Shield</h1>
-            <p className="text-sm text-muted-foreground">Automated Exam Proctoring System</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white">ExamEye Shield</h1>
+            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Automated Exam Proctoring System</p>
           </div>
         </div>
       </header>
