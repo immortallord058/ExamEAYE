@@ -12,22 +12,39 @@ const AdminLogin = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     setLoading(true);
 
-    // Simple password check (in production, use proper authentication)
-    setTimeout(() => {
-      if (password === "vinay") {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || process.env.REACT_APP_BACKEND_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: 'admin',
+          password: password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         sessionStorage.setItem('adminAuth', 'true');
+        sessionStorage.setItem('adminUser', JSON.stringify(data.admin));
         toast.success("Login successful!");
         navigate('/admin/dashboard');
       } else {
-        toast.error("Invalid password");
+        toast.error(data.detail || "Invalid credentials");
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error("Failed to login. Please check your connection.");
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   return (
