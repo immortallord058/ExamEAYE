@@ -400,6 +400,27 @@ async def get_student_violations(student_id: str):
     return [Violation(**v) for v in violations]
 
 
+@api_router.get("/admin/student/{student_id}/evidence")
+async def get_student_evidence(student_id: str):
+    """Get all violations with evidence for a specific student"""
+    try:
+        violations = await db.violations.find({"student_id": student_id}).sort("timestamp", -1).to_list(1000)
+        
+        # Filter violations that have snapshots
+        evidence_violations = [v for v in violations if v.get('snapshot_url') or v.get('snapshot_base64')]
+        
+        return {
+            "student_id": student_id,
+            "total_violations": len(violations),
+            "violations_with_evidence": len(evidence_violations),
+            "evidence": evidence_violations
+        }
+    except Exception as e:
+        logger.error(f"Get student evidence error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
 @api_router.get("/violations/recent", response_model=List[Violation])
 async def get_recent_violations(limit: int = 50):
     """Get recent violations across all sessions"""
