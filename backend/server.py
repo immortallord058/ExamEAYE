@@ -536,19 +536,23 @@ async def get_students_with_violations():
                     'student_id': student_id,
                     'student_name': v.get('student_name'),
                     'violation_count': 0,
-                    'violations': [],
                     'latest_snapshot': None,
                     'violation_types': set()
                 }
             
             students_map[student_id]['violation_count'] += 1
-            students_map[student_id]['violations'].append(v)
             students_map[student_id]['violation_types'].add(v.get('violation_type'))
             
-            # Keep latest snapshot
-            if v.get('snapshot_url') or v.get('snapshot_base64'):
+            # Keep latest snapshot (without full base64 for performance)
+            if v.get('snapshot_url'):
                 if not students_map[student_id]['latest_snapshot']:
-                    students_map[student_id]['latest_snapshot'] = v.get('snapshot_url') or v.get('snapshot_base64')
+                    students_map[student_id]['latest_snapshot'] = v.get('snapshot_url')
+            elif v.get('snapshot_base64') and not students_map[student_id]['latest_snapshot']:
+                # Store truncated base64 for thumbnail
+                snapshot = v.get('snapshot_base64')
+                if len(snapshot) > 200:
+                    snapshot = snapshot[:200]  # Truncate for performance
+                students_map[student_id]['latest_snapshot'] = snapshot
         
         # Convert to list and format
         students_list = []
@@ -558,8 +562,7 @@ async def get_students_with_violations():
                 'student_name': data['student_name'],
                 'violation_count': data['violation_count'],
                 'violation_types': list(data['violation_types']),
-                'latest_snapshot': data['latest_snapshot'],
-                'violations': data['violations'][:5]  # Latest 5 violations
+                'latest_snapshot': data['latest_snapshot']
             })
         
         # Sort by violation count descending
