@@ -33,15 +33,23 @@ class SupabaseService:
             bucket_exists = any(b.name == self.bucket_name for b in buckets)
             
             if not bucket_exists:
-                self.client.storage.create_bucket(
-                    self.bucket_name,
-                    options={"public": True}
-                )
-                print(f"✅ Created Supabase bucket: {self.bucket_name}")
+                print(f"⚠️ Bucket '{self.bucket_name}' does not exist. Attempting to create...")
+                try:
+                    self.client.storage.create_bucket(
+                        self.bucket_name,
+                        options={"public": True, "fileSizeLimit": 52428800}  # 50MB limit
+                    )
+                    print(f"✅ Created Supabase bucket: {self.bucket_name}")
+                except Exception as create_error:
+                    print(f"❌ Could not create bucket: {create_error}")
+                    print("⚠️ Please create the bucket manually in Supabase dashboard")
+                    print(f"   Bucket name: {self.bucket_name}")
+                    print(f"   Make it public and allow uploads")
             else:
                 print(f"✅ Supabase bucket already exists: {self.bucket_name}")
         except Exception as e:
-            print(f"⚠️  Bucket initialization: {e}")
+            print(f"⚠️ Bucket initialization error: {e}")
+            print("📝 Will use base64 storage fallback")
     
     def upload_violation_snapshot(
         self, 
