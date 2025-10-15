@@ -227,13 +227,13 @@ class ExportService:
                 v_type = v.get('violation_type', 'unknown')
                 violation_types[v_type] = violation_types.get(v_type, 0) + 1
             
-            html = """
+            html = ("""
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
                 <title>Student Violation Report - """ + student_name + """</title>
-                <style>
+                <style>"""
                     body { font-family: Arial, sans-serif; margin: 40px; }
                     .header { text-align: center; border-bottom: 3px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
                     h1 { color: #333; margin-bottom: 10px; }
