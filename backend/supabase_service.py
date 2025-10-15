@@ -18,7 +18,7 @@ class SupabaseService:
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrd252dnVxbWlxcmpsZ2hneG5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA0MDQwMTEsImV4cCI6MjA3NTk4MDAxMX0.XhfmvtzuoEXXOrhenEFPzzVQNcIiZhcV3KAClmZnKEI')
         
         self.client: Client = create_client(supabase_url, supabase_key)
-        self.bucket_name = "violation-evidence"
+        self.bucket_name = "vinay"  # Changed to user's bucket name
         
         # Initialize bucket if it doesn't exist
         self._init_bucket()
