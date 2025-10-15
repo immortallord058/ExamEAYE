@@ -358,8 +358,8 @@ const AdminDashboard = () => {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Avg Violations/Student</p>
-                    <p className="text-3xl font-bold">{averageStats.avg_violations_per_student}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">Avg Violations/Student</p>
+                    <p className="text-3xl font-bold text-foreground">{averageStats.avg_violations_per_student}</p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-orange-500" />
                 </div>
