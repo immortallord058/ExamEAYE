@@ -520,7 +520,7 @@ const AdminDashboard = () => {
                                   {violation.message}
                                 </p>
                                 <div className="flex items-center justify-between">
-                                  <span className="text-xs text-muted-foreground">
+                                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                                     {formatTime(violation.timestamp)}
                                   </span>
                                   {violation.snapshot_url && (
