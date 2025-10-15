@@ -18,7 +18,11 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || process.env.REACT_APP_BACKEND_URL}/api/admin/login`, {
+      // Use the correct backend URL from environment
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://codeimporter.preview.emergentagent.com';
+      console.log('Backend URL:', backendUrl); // Debug log
+      
+      const response = await fetch(`${backendUrl}/api/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
