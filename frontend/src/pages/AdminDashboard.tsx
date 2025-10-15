@@ -435,31 +435,36 @@ const AdminDashboard = () => {
 
 
         {/* Evidence Gallery Section */}
-        {recentViolations.filter(v => v.snapshot_url).length > 0 && (
+        {recentViolations.filter(v => v.snapshot_url || v.snapshot_base64).length > 0 && (
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Eye className="w-5 h-5" />
                 Recent Violation Evidence Gallery
                 <Badge variant="secondary" className="ml-2">
-                  {recentViolations.filter(v => v.snapshot_url).length} Images
+                  {recentViolations.filter(v => v.snapshot_url || v.snapshot_base64).length} Images
                 </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {recentViolations
-                  .filter(v => v.snapshot_url)
+                  .filter(v => v.snapshot_url || v.snapshot_base64)
                   .slice(0, 12)
-                  .map((violation) => (
+                  .map((violation) => {
+                    const imageUrl = violation.snapshot_url || 
+                      (violation.snapshot_base64?.startsWith('data:') 
+                        ? violation.snapshot_base64 
+                        : `data:image/jpeg;base64,${violation.snapshot_base64}`);
+                    return (
                     <div 
                       key={violation.id} 
                       className="relative group cursor-pointer"
-                      onClick={() => window.open(violation.snapshot_url, '_blank')}
+                      onClick={() => window.open(imageUrl, '_blank')}
                     >
                       <div className="relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-all">
                         <img 
-                          src={violation.snapshot_url} 
+                          src={imageUrl} 
                           alt={`${violation.violation_type} evidence`}
                           className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
                         />
