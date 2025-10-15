@@ -558,23 +558,6 @@ const AdminDashboard = () => {
                       <Card key={student.student_id} className="border-2 hover:border-primary transition-all">
                         <CardContent className="p-4">
                           <div className="flex items-start gap-4">
-                            {/* Student Image */}
-                            <div className="flex-shrink-0">
-                              {student.latest_snapshot && (
-                                <img 
-                                  src={
-                                    student.latest_snapshot.startsWith('http') 
-                                      ? student.latest_snapshot 
-                                      : student.latest_snapshot.startsWith('data:')
-                                        ? student.latest_snapshot
-                                        : `data:image/jpeg;base64,${student.latest_snapshot}`
-                                  }
-                                  alt={student.student_name}
-                                  className="w-24 h-24 object-cover rounded-lg border-2 border-red-300"
-                                />
-                              )}
-                            </div>
-                            
                             {/* Student Info */}
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
