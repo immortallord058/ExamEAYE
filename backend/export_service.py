@@ -254,7 +254,7 @@ class ExportService:
                     .timestamp { color: #666; font-size: 12px; }
                 </style>
             </head>
-            <body>
+            <body>"""
                 <div class="header">
                     <h1>Student Violation Report</h1>
                     <p><strong>Student ID:</strong> """ + student_id + """</p>
