@@ -607,10 +607,10 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center text-muted-foreground py-8">
+                    <div className="text-center text-gray-600 dark:text-gray-400 py-8">
                       <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                      <p>Monitoring for violations...</p>
-                      <p className="text-xs mt-1">Live alerts will appear here</p>
+                      <p className="font-medium">Monitoring for violations...</p>
+                      <p className="text-xs mt-1 font-medium">Live alerts will appear here</p>
                     </div>
                   )}
                 </ScrollArea>
