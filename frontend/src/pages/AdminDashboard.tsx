@@ -559,7 +559,43 @@ const AdminDashboard = () => {
                               
                               {/* Export Buttons */}
                               <div className="flex gap-2">
-                                <Button 
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(api.exportStudentViolationsCSV(student.student_id), '_blank')}
+                                >
+                                  <Download className="w-3 h-3 mr-1" />
+                                  CSV
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => window.open(api.exportStudentReportHTML(student.student_id), '_blank')}
+                                >
+                                  <Download className="w-3 h-3 mr-1" />
+                                  Report
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-600 dark:text-gray-400 py-8 font-medium">
+                    No students with violations
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Violations Section - keep as is but let me find the end first */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" />
+                  Recent Violations 
                               size="sm" 
                               variant="outline"
                               onClick={() => handleViewSession(session.id)}
