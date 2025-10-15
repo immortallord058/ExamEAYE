@@ -237,7 +237,20 @@ export const api = {
     return response.json();
   },
 
+  // Students with violations
+  getStudentsWithViolations: async (): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/admin/students-with-violations`);
+    return response.json();
+  },
+
   // Export endpoints
+  exportStudentViolationsCSV: (studentId: string): string => {
+    return `${API_URL}/api/admin/export/student/${studentId}/violations/csv`;
+  },
+
+  exportStudentReportHTML: (studentId: string): string => {
+    return `${API_URL}/api/admin/export/student/${studentId}/report/html`;
+  },
   exportViolationsCSV: (sessionId?: string, studentId?: string): string => {
     const params = new URLSearchParams();
     if (sessionId) params.append('session_id', sessionId);
