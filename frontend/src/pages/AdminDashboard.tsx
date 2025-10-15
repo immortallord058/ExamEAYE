@@ -511,12 +511,12 @@ const AdminDashboard = () => {
                               </div>
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-semibold">{violation.student_name}</span>
-                                  <Badge variant="outline" className="text-xs">
+                                  <span className="font-semibold text-foreground">{violation.student_name}</span>
+                                  <Badge variant="outline" className="text-xs font-medium">
                                     {getViolationLabel(violation.violation_type)}
                                   </Badge>
                                 </div>
-                                <p className="text-sm text-muted-foreground mb-2">
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                                   {violation.message}
                                 </p>
                                 <div className="flex items-center justify-between">
