@@ -284,7 +284,7 @@ class ExportService:
                         <th>Count</th>
                         <th>Percentage</th>
                     </tr>
-            """
+            """)
             
             for v_type, count in sorted(violation_types.items(), key=lambda x: x[1], reverse=True):
                 percentage = (count / len(violations)) * 100
