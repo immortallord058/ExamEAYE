@@ -144,8 +144,8 @@ const Index = () => {
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <ShieldCheck className="w-7 h-7 text-primary" />
               </div>
-              <h4 className="font-bold mb-2">Privacy First</h4>
-              <p className="text-sm text-muted-foreground">
+              <h4 className="font-bold mb-2 text-gray-900 dark:text-white">Privacy First</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
                 All processing on client-side, encrypted data transmission
               </p>
             </CardContent>
