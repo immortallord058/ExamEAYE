@@ -45,19 +45,19 @@ const Index = () => {
                 Register and take your proctored exam
               </p>
               <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                   Quick registration with auto-generated ID
                 </li>
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                   Environment verification before exam
                 </li>
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                   Real-time webcam monitoring
                 </li>
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                   Secure exam environment
                 </li>
