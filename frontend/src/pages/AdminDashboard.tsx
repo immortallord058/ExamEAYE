@@ -318,8 +318,8 @@ const AdminDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Active Now</p>
-                  <p className="text-3xl font-bold text-green-500">{stats.active_sessions}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-1 font-medium">Active Now</p>
+                  <p className="text-3xl font-bold text-green-600 dark:text-green-500">{stats.active_sessions}</p>
                 </div>
                 <Users className="w-8 h-8 text-green-500" />
               </div>
