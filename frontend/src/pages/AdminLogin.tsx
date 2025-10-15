@@ -86,9 +86,6 @@ const AdminLogin = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <p className="text-xs text-muted-foreground">
-                  Default password: vinay
-                </p>
               </div>
 
               <Button 
