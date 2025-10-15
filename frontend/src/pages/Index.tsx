@@ -40,8 +40,8 @@ const Index = () => {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
                 <User className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold mb-2 text-center">Student Portal</h3>
-              <p className="text-muted-foreground mb-6 text-center">
+              <h3 className="text-2xl font-bold mb-2 text-center text-gray-900 dark:text-white">Student Portal</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 text-center font-medium">
                 Register and take your proctored exam
               </p>
               <ul className="space-y-3 mb-8">
