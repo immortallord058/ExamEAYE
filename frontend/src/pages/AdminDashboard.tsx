@@ -593,14 +593,14 @@ const AdminDashboard = () => {
                                 </div>
                               </div>
                             </div>
-                            {violation.snapshot_url && (
+                            {(violation.snapshot_url || violation.snapshot_base64) && (
                               <div className="mt-3 relative">
                                 <img 
-                                  src={violation.snapshot_url} 
+                                  src={violation.snapshot_url || `data:image/jpeg;base64,${violation.snapshot_base64}`} 
                                   alt="Violation snapshot"
-                                  className="w-full h-48 object-cover rounded-lg"
+                                  className="w-full h-48 object-cover rounded-lg border-2 border-red-200 dark:border-red-800"
                                 />
-                                <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                <div className="absolute top-2 left-2 bg-black/80 text-white px-3 py-1.5 rounded-md text-xs font-semibold">
                                   {getViolationLabel(violation.violation_type)} - {new Date(violation.timestamp).toLocaleString()}
                                 </div>
                               </div>
