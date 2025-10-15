@@ -598,7 +598,7 @@ const AdminDashboard = () => {
                               <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-medium">
                                 {alert.message}
                               </p>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                                 {formatTime(alert.timestamp)}
                               </p>
                             </div>
