@@ -4,6 +4,7 @@ Handles CSV and PDF export of violation data
 """
 import csv
 import io
+import base64
 from typing import List, Dict
 from datetime import datetime
 import logging
