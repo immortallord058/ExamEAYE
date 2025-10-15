@@ -52,13 +52,39 @@ const StudentVerify = () => {
         camera: { status: 'checking', message: 'Requesting camera access...' }
       }));
 
-      const mediaStream = await startWebcam(videoRef.current);
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true  // Request audio access
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
       setStream(mediaStream);
 
       setChecks(prev => ({
         ...prev,
         camera: { status: 'success', message: 'Camera access granted' }
       }));
+
+      // Check microphone
+      setChecks(prev => ({
+        ...prev,
+        microphone: { status: 'checking', message: 'Checking microphone...' }
+      }));
+
+      const audioTracks = mediaStream.getAudioTracks();
+      if (audioTracks.length > 0 && audioTracks[0].enabled) {
+        setChecks(prev => ({
+          ...prev,
+          microphone: { status: 'success', message: 'Microphone access granted' }
+        }));
+      } else {
+        setChecks(prev => ({
+          ...prev,
+          microphone: { status: 'error', message: 'Microphone not found' }
+        }));
+      }
 
       // Wait for video to be ready
       await new Promise(resolve => setTimeout(resolve, 1000));
