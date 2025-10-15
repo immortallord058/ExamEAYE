@@ -247,6 +247,19 @@ const StudentVerify = () => {
                     </div>
                   </div>
 
+                  {/* Microphone Check */}
+                  <div className="flex items-start gap-3">
+                    {getStatusIcon(checks.microphone.status)}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <Mic className="w-4 h-4" />
+                        <span className="font-medium">Microphone Access</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{checks.microphone.message}</p>
+                    </div>
+                  </div>
+
+
                   {/* Lighting Check */}
                   <div className="flex items-start gap-3">
                     {getStatusIcon(checks.lighting.status)}
