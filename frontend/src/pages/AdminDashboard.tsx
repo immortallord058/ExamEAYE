@@ -522,8 +522,9 @@ const AdminDashboard = () => {
                           </div>
                         </div>
                         {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                          <Eye className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-all" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex flex-col items-center justify-center">
+                          <Download className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-all" />
+                          <span className="text-white text-xs mt-2 opacity-0 group-hover:opacity-100 transition-all font-semibold">Click to Download</span>
                         </div>
                       </div>
                     </div>
