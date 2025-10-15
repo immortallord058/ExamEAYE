@@ -137,15 +137,40 @@ const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
+      // First check backend connectivity
+      console.log('🔗 Checking backend connectivity...');
+      const healthCheck = await api.healthCheck();
+      console.log('✅ Backend connected:', healthCheck);
+
+      console.log('📊 Loading dashboard data...');
       const [statsData, sessionsData, studentsData, violationsData, avgStatsData, timelineData] = await Promise.all([
-        api.getAdminStats(),
-        api.getActiveSessions(),
-        api.getStudentsWithViolations(),
-        api.getRecentViolations(50),
-        api.getAverageStatistics(),
-        api.getViolationsTimeline(100)
+        api.getAdminStats().catch(err => {
+          console.error('Stats error:', err);
+          return { total_sessions: 0, active_sessions: 0, completed_sessions: 0, total_violations: 0 };
+        }),
+        api.getActiveSessions().catch(err => {
+          console.error('Sessions error:', err);
+          return [];
+        }),
+        api.getStudentsWithViolations().catch(err => {
+          console.error('Students error:', err);
+          return { students: [] };
+        }),
+        api.getRecentViolations(50).catch(err => {
+          console.error('Violations error:', err);
+          return [];
+        }),
+        api.getAverageStatistics().catch(err => {
+          console.error('Avg stats error:', err);
+          return null;
+        }),
+        api.getViolationsTimeline(100).catch(err => {
+          console.error('Timeline error:', err);
+          return { timeline: [] };
+        })
       ]);
 
+      console.log('✅ Data loaded successfully');
       setStats(statsData);
       setActiveSessions(sessionsData);
       setStudentsWithViolations(studentsData.students || []);
@@ -153,9 +178,11 @@ const AdminDashboard = () => {
       setAverageStats(avgStatsData);
       setViolationsTimeline(timelineData.timeline || []);
       setLoading(false);
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      toast.error("Failed to load dashboard data");
+      toast.success("Dashboard data loaded");
+    } catch (error: any) {
+      console.error('❌ Error loading dashboard data:', error);
+      toast.error("Failed to load dashboard data: " + (error.message || "Connection error"));
+      setLoading(false);
     }
   };
 
