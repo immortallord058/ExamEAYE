@@ -490,6 +490,57 @@ async def admin_login(credentials: dict):
             }
         }
     
+
+
+@api_router.get("/admin/students-with-violations")
+async def get_students_with_violations():
+    """Get all students who have violations with their violation counts and latest snapshots"""
+    try:
+        # Get all violations grouped by student
+        violations = await db.violations.find().to_list(10000)
+        
+        students_map = {}
+        for v in violations:
+            student_id = v.get('student_id')
+            if student_id not in students_map:
+                students_map[student_id] = {
+                    'student_id': student_id,
+                    'student_name': v.get('student_name'),
+                    'violation_count': 0,
+                    'violations': [],
+                    'latest_snapshot': None,
+                    'violation_types': set()
+                }
+            
+            students_map[student_id]['violation_count'] += 1
+            students_map[student_id]['violations'].append(v)
+            students_map[student_id]['violation_types'].add(v.get('violation_type'))
+            
+            # Keep latest snapshot
+            if v.get('snapshot_url') or v.get('snapshot_base64'):
+                if not students_map[student_id]['latest_snapshot']:
+                    students_map[student_id]['latest_snapshot'] = v.get('snapshot_url') or v.get('snapshot_base64')
+        
+        # Convert to list and format
+        students_list = []
+        for student_id, data in students_map.items():
+            students_list.append({
+                'student_id': student_id,
+                'student_name': data['student_name'],
+                'violation_count': data['violation_count'],
+                'violation_types': list(data['violation_types']),
+                'latest_snapshot': data['latest_snapshot'],
+                'violations': data['violations'][:5]  # Latest 5 violations
+            })
+        
+        # Sort by violation count descending
+        students_list.sort(key=lambda x: x['violation_count'], reverse=True)
+        
+        return {"students": students_list}
+    except Exception as e:
+        logger.error(f"Get students with violations error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 
