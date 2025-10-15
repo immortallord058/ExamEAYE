@@ -469,6 +469,30 @@ async def get_recent_violations(limit: int = 50):
 # ============================================================================
 
 @api_router.get("/admin/stats", response_model=SessionStats)
+
+@api_router.post("/admin/login")
+async def admin_login(credentials: dict):
+    """
+    Simple admin login endpoint
+    In production, this should use proper authentication
+    """
+    username = credentials.get('username')
+    password = credentials.get('password')
+    
+    # Simple hardcoded credentials (replace with proper auth in production)
+    if username == "admin" and password == "admin123":
+        return {
+            "success": True,
+            "message": "Login successful",
+            "admin": {
+                "username": "admin",
+                "role": "administrator"
+            }
+        }
+    
+    raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
 async def get_admin_stats():
     """Get overall statistics for admin dashboard"""
     try:
