@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Shield, Camera, Sun, User, CheckCircle2, AlertCircle, Loader2, ArrowRight } from "lucide-react";
+import { Shield, Camera, Sun, User, CheckCircle2, AlertCircle, Loader2, ArrowRight, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
