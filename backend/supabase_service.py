@@ -56,6 +56,10 @@ class SupabaseService:
         """
         try:
             # Decode base64 image
+            if ',' in snapshot_base64:
+                # Remove data:image/jpeg;base64, prefix if present
+                snapshot_base64 = snapshot_base64.split(',')[1]
+            
             image_data = base64.b64decode(snapshot_base64)
             
             # Generate unique filename
@@ -63,21 +67,32 @@ class SupabaseService:
             unique_id = str(uuid.uuid4())[:8]
             filename = f"{student_id}/{session_id}/{violation_type}_{timestamp}_{unique_id}.jpg"
             
-            # Upload to Supabase
+            print(f"📤 Attempting to upload snapshot: {filename}")
+            print(f"📦 Image data size: {len(image_data)} bytes")
+            
+            # Upload to Supabase with upsert to overwrite if exists
             response = self.client.storage.from_(self.bucket_name).upload(
                 filename,
                 image_data,
-                file_options={"content-type": "image/jpeg"}
+                file_options={
+                    "content-type": "image/jpeg",
+                    "upsert": "true"
+                }
             )
+            
+            print(f"📤 Upload response: {response}")
             
             # Get public URL
             public_url = self.client.storage.from_(self.bucket_name).get_public_url(filename)
             
-            print(f"✅ Uploaded snapshot: {filename}")
+            print(f"✅ Uploaded snapshot successfully!")
+            print(f"🔗 Public URL: {public_url}")
             return public_url
             
         except Exception as e:
-            print(f"❌ Snapshot upload error: {e}")
+            print(f"❌ Snapshot upload error: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def upload_environment_check_image(
