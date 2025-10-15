@@ -492,17 +492,6 @@ async def get_admin_stats():
 async def admin_login(credentials: dict):
     """
     Simple admin login endpoint
-
-
-@api_router.get("/admin/connectivity")
-async def check_admin_connectivity():
-    """Simple endpoint to check backend connectivity"""
-    return {
-        "status": "connected",
-        "message": "Backend is reachable",
-        "timestamp": datetime.utcnow().isoformat()
-    }
-
     In production, this should use proper authentication
     """
     username = credentials.get('username')
@@ -519,6 +508,17 @@ async def check_admin_connectivity():
             }
         }
     
+    raise HTTPException(status_code=401, detail="Invalid credentials")
+
+
+@api_router.get("/admin/connectivity")
+async def check_admin_connectivity():
+    """Simple endpoint to check backend connectivity"""
+    return {
+        "status": "connected",
+        "message": "Backend is reachable",
+        "timestamp": datetime.utcnow().isoformat()
+    }
 
 
 @api_router.get("/admin/students-with-violations")
