@@ -59,12 +59,13 @@ class Violation(BaseModel):
     student_id: str
     student_name: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    violation_type: str  # looking_away, multiple_faces, phone_detected, book_detected, no_person, copy_paste, tab_switch
+    violation_type: str  # looking_away, multiple_faces, phone_detected, book_detected, no_person, copy_paste, tab_switch, excessive_noise
     severity: str  # low, medium, high
     message: str
     snapshot_url: Optional[str] = None  # Supabase URL
     snapshot_base64: Optional[str] = None  # Temporary base64 before upload
     head_pose: Optional[Dict] = None
+    audio_level: Optional[float] = None  # Audio level for noise violations
 
 class ViolationCreate(BaseModel):
     session_id: str
