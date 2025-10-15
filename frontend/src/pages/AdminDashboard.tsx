@@ -455,16 +455,16 @@ const AdminDashboard = () => {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
-                                <h4 className="font-semibold">{session.student_name}</h4>
-                                <Badge variant="outline">{session.student_id}</Badge>
-                                <Badge className="bg-green-500">Active</Badge>
+                                <h4 className="font-semibold text-foreground">{session.student_name}</h4>
+                                <Badge variant="outline" className="font-medium">{session.student_id}</Badge>
+                                <Badge className="bg-green-600 text-white font-medium">Active</Badge>
                               </div>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
+                              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                                <span className="flex items-center gap-1 font-medium">
                                   <Clock className="w-3 h-3" />
                                   Duration: {formatDuration(session.start_time)}
                                 </span>
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1 font-medium">
                                   <AlertTriangle className="w-3 h-3" />
                                   Violations: {session.violation_count}
                                 </span>
