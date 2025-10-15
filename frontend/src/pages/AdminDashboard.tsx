@@ -32,6 +32,7 @@ const AdminDashboard = () => {
     total_violations: 0
   });
   const [activeSessions, setActiveSessions] = useState<ExamSession[]>([]);
+  const [studentsWithViolations, setStudentsWithViolations] = useState<any[]>([]);
   const [recentViolations, setRecentViolations] = useState<Violation[]>([]);
   const [liveAlerts, setLiveAlerts] = useState<ViolationAlert[]>([]);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
