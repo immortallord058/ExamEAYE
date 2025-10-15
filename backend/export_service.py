@@ -279,36 +279,21 @@ class ExportService:
             html_parts.append('</table>')
             
             # Detailed violations
-            html_parts.append('<h2>Detailed Violations with Evidence</h2>')
-            
-            # Define which violations should have photos
-            camera_violations = ['phone_detected', 'book_detected', 'multiple_faces', 'no_person', 'looking_away']
-            browser_audio_violations = ['copy_paste', 'tab_switch', 'excessive_noise']
+            html_parts.append('<h2>Detailed Violations</h2>')
             
             for i, v in enumerate(violations, 1):
                 violation_type = v.get('violation_type', 'unknown')
+                severity = v.get("severity", "N/A").upper()
                 timestamp_str = str(v.get('timestamp', 'N/A'))
-                html_parts.append(f'<div class="violation-card"><h3>Violation #{i}: {violation_type.replace("_", " ").title()}</h3>')
-                html_parts.append(f'<p><strong>Severity:</strong> {v.get("severity", "N/A").upper()}</p>')
+                
+                # Color-coded severity badge
+                badge_class = 'badge-high' if severity == 'HIGH' else 'badge-medium' if severity == 'MEDIUM' else 'badge-low'
+                
+                html_parts.append(f'<div class="violation-card">')
+                html_parts.append(f'<h3>Violation #{i}: {violation_type.replace("_", " ").title()}</h3>')
+                html_parts.append(f'<p><strong>Severity:</strong> <span class="badge {badge_class}">{severity}</span></p>')
                 html_parts.append(f'<p><strong>Message:</strong> {v.get("message", "N/A")}</p>')
                 html_parts.append(f'<p><strong>Timestamp:</strong> {timestamp_str}</p>')
-                
-                # Only show/expect images for camera-based violations
-                if violation_type in camera_violations:
-                    if v.get('snapshot_url'):
-                        html_parts.append(f'<p><strong>Evidence Photo:</strong></p><img src="{v.get("snapshot_url")}" class="violation-image" alt="Violation Evidence">')
-                    elif v.get('snapshot_base64'):
-                        snapshot_base64 = v.get('snapshot_base64')
-                        if not snapshot_base64.startswith('data:'):
-                            snapshot_base64 = f"data:image/jpeg;base64,{snapshot_base64}"
-                        html_parts.append(f'<p><strong>Evidence Photo:</strong></p><img src="{snapshot_base64}" class="violation-image" alt="Violation Evidence">')
-                    else:
-                        # Camera violation but no photo - this is an error
-                        html_parts.append('<div class="no-image"><p><strong>⚠️ Evidence photo missing</strong></p><p>This camera-based violation should have a photo but it was not captured.</p></div>')
-                elif violation_type in browser_audio_violations:
-                    # Browser/audio violations - no photo needed, don't show warning
-                    html_parts.append('<p><em>This violation was detected through browser/audio monitoring (no camera snapshot required).</em></p>')
-                
                 html_parts.append('</div>')
             
             html_parts.append('</body></html>')
