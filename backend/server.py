@@ -272,13 +272,19 @@ async def process_frame(request: FrameProcessRequest):
             for violation_detail in result['violations']:
                 # Upload snapshot to Supabase if available
                 snapshot_url = None
+                snapshot_base64 = None
                 if result.get('snapshot_base64'):
+                    logger.info(f"Uploading snapshot for violation: {violation_detail['type']}")
                     snapshot_url = supabase_service.upload_violation_snapshot(
                         result['snapshot_base64'],
                         session['student_id'],
                         request.session_id,
                         violation_detail['type']
                     )
+                    # Keep base64 as fallback if upload fails
+                    if not snapshot_url:
+                        logger.warning("Supabase upload failed, using base64 fallback")
+                        snapshot_base64 = result['snapshot_base64'][:500]  # Store truncated version
                 
                 # Create violation record
                 violation = Violation(
