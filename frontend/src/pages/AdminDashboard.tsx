@@ -552,7 +552,7 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-center text-muted-foreground py-8">
+                    <p className="text-center text-gray-600 dark:text-gray-400 py-8 font-medium">
                       No violations recorded
                     </p>
                   )}
