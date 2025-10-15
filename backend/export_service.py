@@ -177,7 +177,30 @@ class ExportService:
                     <tr>
                         <th>Student ID</th>
                         <th>Student Name</th>
-
+                        <th>Total Violations</th>
+                    </tr>
+            """
+            
+            for key, count in sorted(student_violations.items(), key=lambda x: x[1], reverse=True):
+                stud_id, stud_name = key.split('|')
+                html += f"""
+                    <tr>
+                        <td>{stud_id}</td>
+                        <td>{stud_name}</td>
+                        <td>{count}</td>
+                    </tr>
+                """
+            
+            html += """
+                </table>
+            </body>
+            </html>
+            """
+            
+            return html
+        except Exception as e:
+            logger.error(f"HTML report generation error: {e}")
+            return ""
 
     @staticmethod
     def export_student_violations_csv(student_id: str, student_name: str, violations: List[Dict]) -> str:
