@@ -418,6 +418,41 @@ async def get_student_evidence(student_id: str):
             "evidence": evidence_violations
         }
     except Exception as e:
+
+
+@api_router.get("/violations/{violation_id}/snapshot")
+async def get_violation_snapshot(violation_id: str):
+    """Get violation snapshot image"""
+    try:
+        violation = await db.violations.find_one({"id": violation_id})
+        if not violation:
+            raise HTTPException(status_code=404, detail="Violation not found")
+        
+        # If Supabase URL exists, redirect to it
+        if violation.get('snapshot_url'):
+            from fastapi.responses import RedirectResponse
+            return RedirectResponse(url=violation['snapshot_url'])
+        
+        # Otherwise return base64 image
+        if violation.get('snapshot_base64'):
+            import base64
+            from fastapi.responses import Response
+            
+            # Remove data URI prefix if present
+            image_data = violation['snapshot_base64']
+            if ',' in image_data:
+                image_data = image_data.split(',')[1]
+            
+            image_bytes = base64.b64decode(image_data)
+            return Response(content=image_bytes, media_type="image/jpeg")
+        
+        raise HTTPException(status_code=404, detail="No snapshot available")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Get snapshot error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
         logger.error(f"Get student evidence error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
