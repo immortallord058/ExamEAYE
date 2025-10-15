@@ -418,6 +418,8 @@ async def get_student_evidence(student_id: str):
             "evidence": evidence_violations
         }
     except Exception as e:
+        logger.error(f"Get student evidence error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @api_router.get("/violations/{violation_id}/snapshot")
