@@ -309,22 +309,22 @@ class ExportService:
                 else:
                     timestamp_str = timestamp.strftime('%Y-%m-%d %H:%M:%S') if timestamp else 'N/A'
                 
-                html += f"""
+                html += """
                 <div class="violation-card">
-                    <div class="violation-header">Violation #{i}: {v.get('violation_type', 'Unknown').replace('_', ' ').title()}</div>
-                    <p><strong>Severity:</strong> {v.get('severity', 'N/A').upper()}</p>
-                    <p><strong>Message:</strong> {v.get('message', 'N/A')}</p>
-                    <p class="timestamp"><strong>Timestamp:</strong> {timestamp_str}</p>
+                    <div class="violation-header">Violation #""" + str(i) + """: """ + v.get('violation_type', 'Unknown').replace('_', ' ').title() + """</div>
+                    <p><strong>Severity:</strong> """ + v.get('severity', 'N/A').upper() + """</p>
+                    <p><strong>Message:</strong> """ + v.get('message', 'N/A') + """</p>
+                    <p class="timestamp"><strong>Timestamp:</strong> """ + timestamp_str + """</p>
                 """
                 
                 # Add image if available
                 if v.get('snapshot_url'):
-                    html += f'<img src="{v.get("snapshot_url")}" class="violation-image" alt="Violation Evidence">'
+                    html += '<img src="' + v.get("snapshot_url") + '" class="violation-image" alt="Violation Evidence">'
                 elif v.get('snapshot_base64'):
                     snapshot_base64 = v.get('snapshot_base64')
                     if not snapshot_base64.startswith('data:'):
-                        snapshot_base64 = f"data:image/jpeg;base64,{snapshot_base64}"
-                    html += f'<img src="{snapshot_base64}" class="violation-image" alt="Violation Evidence">'
+                        snapshot_base64 = "data:image/jpeg;base64," + snapshot_base64
+                    html += '<img src="' + snapshot_base64 + '" class="violation-image" alt="Violation Evidence">'
                 
                 html += "</div>"
             
