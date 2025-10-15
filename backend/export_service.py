@@ -274,30 +274,5 @@ class ExportService:
             logger.error(f"Student HTML report generation error: {e}")
             return ""
 
-                        <th>Total Violations</th>
-                    </tr>
-            """
-            
-            for key, count in sorted(student_violations.items(), key=lambda x: x[1], reverse=True):
-                student_id, student_name = key.split('|')
-                html += f"""
-                    <tr>
-                        <td>{student_id}</td>
-                        <td>{student_name}</td>
-                        <td>{count}</td>
-                    </tr>
-                """
-            
-            html += """
-                </table>
-            </body>
-            </html>
-            """
-            
-            return html
-        except Exception as e:
-            logger.error(f"HTML report generation error: {e}")
-            return ""
-
 # Global instance
 export_service = ExportService()
