@@ -269,8 +269,8 @@ const AdminDashboard = () => {
               <Shield className="w-7 h-7 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-              <p className="text-sm text-muted-foreground">Real-time Exam Monitoring</p>
+              <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Real-time Exam Monitoring</p>
             </div>
           </div>
 
