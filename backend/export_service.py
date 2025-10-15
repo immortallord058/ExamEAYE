@@ -262,8 +262,19 @@ class ExportService:
             html_parts.append(f'<div class="header"><h1>Student Violation Report</h1><p><strong>Student ID:</strong> {student_id}</p><p><strong>Student Name:</strong> {student_name}</p><p><strong>Generated:</strong> {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")}</p></div>')
             
             # Statistics
-            violations_with_images = len([v for v in violations if v.get('snapshot_url') or v.get('snapshot_base64')])
-            html_parts.append(f'<div class="summary-box"><h2>Summary</h2><p><strong>Total Violations:</strong> {len(violations)}</p><p><strong>Violations with Evidence Photos:</strong> {violations_with_images}</p><p><strong>Violations without Photos:</strong> {len(violations) - violations_with_images}</p></div>')
+            camera_violations = ['phone_detected', 'book_detected', 'multiple_faces', 'no_person', 'looking_away']
+            browser_audio_violations = ['copy_paste', 'tab_switch', 'excessive_noise']
+            
+            camera_violation_count = len([v for v in violations if v.get('violation_type') in camera_violations])
+            browser_violation_count = len([v for v in violations if v.get('violation_type') in browser_audio_violations])
+            violations_with_images = len([v for v in violations if (v.get('snapshot_url') or v.get('snapshot_base64'))])
+            
+            html_parts.append(f'<div class="summary-box"><h2>Summary</h2>')
+            html_parts.append(f'<p><strong>Total Violations:</strong> {len(violations)}</p>')
+            html_parts.append(f'<p><strong>Camera-Based Violations:</strong> {camera_violation_count} (with evidence photos)</p>')
+            html_parts.append(f'<p><strong>Browser/Audio Violations:</strong> {browser_violation_count} (no photos needed)</p>')
+            html_parts.append(f'<p><strong>Evidence Photos Captured:</strong> {violations_with_images}</p>')
+            html_parts.append('</div>')
             
             # Violation breakdown table
             html_parts.append('<h2>Violation Breakdown</h2><table><tr><th>Violation Type</th><th>Count</th><th>Percentage</th></tr>')
