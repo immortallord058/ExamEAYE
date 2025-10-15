@@ -25,7 +25,7 @@ const AdminLogin = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: 'admin',
+          username: username,
           password: password
         })
       });
