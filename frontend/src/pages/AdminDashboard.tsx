@@ -137,9 +137,10 @@ const AdminDashboard = () => {
 
   const loadDashboardData = async () => {
     try {
-      const [statsData, sessionsData, violationsData, avgStatsData, timelineData] = await Promise.all([
+      const [statsData, sessionsData, studentsData, violationsData, avgStatsData, timelineData] = await Promise.all([
         api.getAdminStats(),
         api.getActiveSessions(),
+        api.getStudentsWithViolations(),
         api.getRecentViolations(50),
         api.getAverageStatistics(),
         api.getViolationsTimeline(100)
@@ -147,6 +148,7 @@ const AdminDashboard = () => {
 
       setStats(statsData);
       setActiveSessions(sessionsData);
+      setStudentsWithViolations(studentsData.students || []);
       setRecentViolations(violationsData);
       setAverageStats(avgStatsData);
       setViolationsTimeline(timelineData.timeline || []);
