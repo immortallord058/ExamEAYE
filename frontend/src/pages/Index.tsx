@@ -23,10 +23,10 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 text-center">
-        <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        <h2 className="text-5xl font-bold mb-4 text-gray-900 dark:text-white">
           Secure. Reliable. Intelligent.
         </h2>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto font-medium">
           AI-powered proctoring system ensuring exam integrity with real-time monitoring, violation detection, and comprehensive analytics.
         </p>
       </section>
