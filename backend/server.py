@@ -455,9 +455,6 @@ async def get_violation_snapshot(violation_id: str):
         logger.error(f"Get snapshot error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-        logger.error(f"Get student evidence error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
 
 
 @api_router.get("/violations/recent", response_model=List[Violation])
