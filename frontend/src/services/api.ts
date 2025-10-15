@@ -266,6 +266,20 @@ export const api = {
     return `${API_URL}/api/admin/export/report/html`;
   },
 
+  // Admin authentication
+  adminLogin: async (username: string, password: string): Promise<any> => {
+    const response = await fetch(`${API_URL}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Login failed');
+    }
+    return response.json();
+  },
+
   // Health check
   healthCheck: async (): Promise<any> => {
     const response = await fetch(`${API_URL}/api/health`);
