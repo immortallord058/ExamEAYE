@@ -129,6 +129,76 @@ const StudentExam = () => {
   }, [session]);
 
 
+
+  useEffect(() => {
+    // Audio/Noise Monitoring
+    if (!session || !stream) return;
+
+    let audioContext: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let microphone: MediaStreamAudioSourceNode | null = null;
+    let monitoringInterval: NodeJS.Timeout | null = null;
+
+    const setupAudioMonitoring = async () => {
+      try {
+        audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        
+        const audioTracks = stream.getAudioTracks();
+        if (audioTracks.length > 0) {
+          const audioStream = new MediaStream([audioTracks[0]]);
+          microphone = audioContext.createMediaStreamSource(audioStream);
+          microphone.connect(analyser);
+
+          const bufferLength = analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+
+          // Check audio level every 3 seconds
+          monitoringInterval = setInterval(() => {
+            if (!analyser) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+            
+            // Threshold for excessive noise (adjust as needed)
+            const NOISE_THRESHOLD = 100; // 0-255 scale
+            
+            if (average > NOISE_THRESHOLD) {
+              toast.warning('Excessive noise detected!', { duration: 3000 });
+              
+              api.reportBrowserViolation(
+                session.id,
+                'excessive_noise',
+                `Excessive noise detected (level: ${Math.round(average)})`
+              ).then(() => {
+                setViolationCount(prev => prev + 1);
+                setWarnings(prev => [{
+                  type: 'excessive_noise',
+                  message: 'Excessive noise detected',
+                  time: new Date().toLocaleTimeString()
+                }, ...prev].slice(0, 10));
+              }).catch(error => {
+                console.error('Failed to report noise violation:', error);
+              });
+            }
+          }, 3000);
+        }
+      } catch (error) {
+        console.error('Audio monitoring setup error:', error);
+      }
+    };
+
+    setupAudioMonitoring();
+
+    return () => {
+      if (monitoringInterval) clearInterval(monitoringInterval);
+      if (microphone) microphone.disconnect();
+      if (audioContext) audioContext.close();
+    };
+  }, [session, stream]);
+
+
   const initializeExam = async () => {
     try {
       if (!videoRef.current) return;
