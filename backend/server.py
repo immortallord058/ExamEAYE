@@ -469,6 +469,24 @@ async def get_recent_violations(limit: int = 50):
 # ============================================================================
 
 @api_router.get("/admin/stats", response_model=SessionStats)
+async def get_admin_stats():
+    """Get admin dashboard statistics"""
+    try:
+        total_sessions = await db.exam_sessions.count_documents({})
+        active_sessions = await db.exam_sessions.count_documents({"status": "active"})
+        completed_sessions = await db.exam_sessions.count_documents({"status": "completed"})
+        total_violations = await db.violations.count_documents({})
+        
+        return SessionStats(
+            total_sessions=total_sessions,
+            active_sessions=active_sessions,
+            completed_sessions=completed_sessions,
+            total_violations=total_violations
+        )
+    except Exception as e:
+        logger.error(f"Get admin stats error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @api_router.post("/admin/login")
 async def admin_login(credentials: dict):
