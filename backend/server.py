@@ -281,10 +281,12 @@ async def process_frame(request: FrameProcessRequest):
                         request.session_id,
                         violation_detail['type']
                     )
-                    # Keep base64 as fallback if upload fails
+                    # Always keep base64 as fallback
+                    snapshot_base64 = result['snapshot_base64']
                     if not snapshot_url:
-                        logger.warning("Supabase upload failed, using base64 fallback")
-                        snapshot_base64 = result['snapshot_base64'][:500]  # Store truncated version
+                        logger.warning("Supabase upload failed, using base64 fallback for display")
+                    else:
+                        logger.info(f"✅ Snapshot uploaded successfully: {snapshot_url}")
                 
                 # Create violation record
                 violation = Violation(
