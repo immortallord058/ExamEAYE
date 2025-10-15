@@ -19,34 +19,20 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      // Use the correct backend URL from environment
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://codeimporter.preview.emergentagent.com';
-      console.log('Backend URL:', backendUrl); // Debug log
-      
-      const response = await fetch(`${backendUrl}/api/admin/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: 'admin',  // Default username
-          password: password
-        })
-      });
+      // Use api service for login
+      const data = await api.adminLogin('admin', password);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         sessionStorage.setItem('adminAuth', 'true');
         sessionStorage.setItem('adminUser', JSON.stringify(data.admin));
         toast.success("Login successful!");
         navigate('/admin/dashboard');
       } else {
-        toast.error(data.detail || "Invalid credentials");
+        toast.error("Invalid credentials");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
-      toast.error("Failed to login. Please check your connection.");
+      toast.error(error.message || "Failed to login. Please check your connection.");
     } finally {
       setLoading(false);
     }
