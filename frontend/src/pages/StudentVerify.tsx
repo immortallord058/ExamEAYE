@@ -14,6 +14,7 @@ const StudentVerify = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [checks, setChecks] = useState({
     camera: { status: 'pending', message: 'Waiting...' },
+    microphone: { status: 'pending', message: 'Waiting...' },
     lighting: { status: 'pending', message: 'Waiting...' },
     face: { status: 'pending', message: 'Waiting...' },
   });
