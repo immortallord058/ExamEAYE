@@ -645,6 +645,56 @@ async def get_student_statistics(student_id: str):
         total_sessions = len(sessions)
         
         # Get all violations for this student
+        violations = await db.violations.find({"student_id": student_id}).to_list(10000)
+        total_violations = len(violations)
+        
+        # Calculate average violations per session
+        avg_violations_per_session = total_violations / total_sessions if total_sessions > 0 else 0
+        
+        # Calculate average session duration
+        total_duration_minutes = 0
+        for session in sessions:
+            if session.get('end_time') and session.get('start_time'):
+                duration = (session['end_time'] - session['start_time']).total_seconds() / 60
+                total_duration_minutes += duration
+        
+        avg_session_duration_minutes = total_duration_minutes / total_sessions if total_sessions > 0 else 0
+        
+        # Violation breakdown by type
+        violation_breakdown = {}
+        for v in violations:
+            v_type = v.get('violation_type', 'unknown')
+            violation_breakdown[v_type] = violation_breakdown.get(v_type, 0) + 1
+        
+        # Violations over time (grouped by hour)
+        violations_by_time = {}
+        for v in violations:
+            timestamp = v.get('timestamp')
+            if timestamp:
+                # Group by hour
+                hour_key = timestamp.replace(minute=0, second=0, microsecond=0)
+                violations_by_time[hour_key] = violations_by_time.get(hour_key, 0) + 1
+        
+        violations_over_time = [
+            ViolationTimePoint(timestamp=ts, count=count)
+            for ts, count in sorted(violations_by_time.items())
+        ]
+        
+        return StudentStatistics(
+            student_id=student_id,
+            student_name=student.get('name', 'Unknown'),
+            total_violations=total_violations,
+            avg_violations_per_session=round(avg_violations_per_session, 2),
+            total_sessions=total_sessions,
+            avg_session_duration_minutes=round(avg_session_duration_minutes, 2),
+            violation_breakdown=violation_breakdown,
+            violations_over_time=violations_over_time
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Student statistics error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @api_router.get("/admin/export/student/{student_id}/violations/csv")
