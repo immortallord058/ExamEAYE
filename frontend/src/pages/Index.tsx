@@ -83,19 +83,19 @@ const Index = () => {
                 Monitor exams and review violations
               </p>
               <ul className="space-y-3 mb-8">
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
                   Real-time student monitoring
                 </li>
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
                   Violation alerts and tracking
                 </li>
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
                   Visual analytics dashboard
                 </li>
-                <li className="flex items-center gap-2 text-sm">
+                <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 font-medium">
                   <div className="w-1.5 h-1.5 rounded-full bg-secondary"></div>
                   PDF reports and CSV export
                 </li>
