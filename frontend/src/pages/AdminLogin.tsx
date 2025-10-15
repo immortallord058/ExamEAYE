@@ -87,7 +87,7 @@ const AdminLogin = () => {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  Default password: admin123
+                  Default password: vinay
                 </p>
               </div>
 
