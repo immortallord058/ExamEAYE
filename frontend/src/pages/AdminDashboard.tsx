@@ -209,6 +209,8 @@ const AdminDashboard = () => {
         return <AlertTriangle className="w-4 h-4" />;
       case 'tab_switch':
         return <AlertTriangle className="w-4 h-4" />;
+      case 'excessive_noise':
+        return <Activity className="w-4 h-4" />;
       default:
         return <AlertTriangle className="w-4 h-4" />;
     }
@@ -222,7 +224,8 @@ const AdminDashboard = () => {
       'phone_detected': 'Phone Detected',
       'book_detected': 'Book Detected',
       'copy_paste': 'Copy/Paste Attempt',
-      'tab_switch': 'Tab Switching'
+      'tab_switch': 'Tab Switching',
+      'excessive_noise': 'Excessive Noise'
     };
     return labels[type] || type.replace('_', ' ');
   };
