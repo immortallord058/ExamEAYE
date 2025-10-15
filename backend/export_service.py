@@ -227,52 +227,52 @@ class ExportService:
                 v_type = v.get('violation_type', 'unknown')
                 violation_types[v_type] = violation_types.get(v_type, 0) + 1
             
-            html = f"""
+            html = """
             <!DOCTYPE html>
             <html>
             <head>
                 <meta charset="UTF-8">
-                <title>Student Violation Report - {student_name}</title>
+                <title>Student Violation Report - """ + student_name + """</title>
                 <style>
-                    body {{ font-family: Arial, sans-serif; margin: 40px; }}
-                    .header {{ text-align: center; border-bottom: 3px solid #333; padding-bottom: 20px; margin-bottom: 30px; }}
-                    h1 {{ color: #333; margin-bottom: 10px; }}
-                    .info-box {{ background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }}
-                    .stat-row {{ display: flex; justify-content: space-around; margin: 20px 0; }}
-                    .stat-box {{ text-align: center; padding: 15px; }}
-                    .stat-number {{ font-size: 36px; font-weight: bold; color: #e74c3c; }}
-                    .stat-label {{ color: #666; font-size: 14px; margin-top: 5px; }}
-                    h2 {{ color: #666; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }}
-                    table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
-                    th, td {{ border: 1px solid #ddd; padding: 12px; text-align: left; }}
-                    th {{ background-color: #e74c3c; color: white; }}
-                    tr:nth-child(even) {{ background-color: #f9f9f9; }}
-                    .violation-image {{ max-width: 300px; max-height: 200px; border: 2px solid #e74c3c; border-radius: 5px; margin: 10px 0; }}
-                    .violation-card {{ border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 5px; }}
-                    .violation-card:nth-child(even) {{ background-color: #f9f9f9; }}
-                    .violation-header {{ font-weight: bold; color: #e74c3c; margin-bottom: 10px; }}
-                    .timestamp {{ color: #666; font-size: 12px; }}
+                    body { font-family: Arial, sans-serif; margin: 40px; }
+                    .header { text-align: center; border-bottom: 3px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+                    h1 { color: #333; margin-bottom: 10px; }
+                    .info-box { background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; }
+                    .stat-row { display: flex; justify-content: space-around; margin: 20px 0; }
+                    .stat-box { text-align: center; padding: 15px; }
+                    .stat-number { font-size: 36px; font-weight: bold; color: #e74c3c; }
+                    .stat-label { color: #666; font-size: 14px; margin-top: 5px; }
+                    h2 { color: #666; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+                    table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+                    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+                    th { background-color: #e74c3c; color: white; }
+                    tr:nth-child(even) { background-color: #f9f9f9; }
+                    .violation-image { max-width: 300px; max-height: 200px; border: 2px solid #e74c3c; border-radius: 5px; margin: 10px 0; }
+                    .violation-card { border: 1px solid #ddd; padding: 15px; margin: 15px 0; border-radius: 5px; }
+                    .violation-card:nth-child(even) { background-color: #f9f9f9; }
+                    .violation-header { font-weight: bold; color: #e74c3c; margin-bottom: 10px; }
+                    .timestamp { color: #666; font-size: 12px; }
                 </style>
             </head>
             <body>
                 <div class="header">
                     <h1>Student Violation Report</h1>
-                    <p><strong>Student ID:</strong> {student_id}</p>
-                    <p><strong>Student Name:</strong> {student_name}</p>
-                    <p><strong>Generated:</strong> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}</p>
+                    <p><strong>Student ID:</strong> """ + student_id + """</p>
+                    <p><strong>Student Name:</strong> """ + student_name + """</p>
+                    <p><strong>Generated:</strong> """ + datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC') + """</p>
                 </div>
                 
                 <div class="stat-row">
                     <div class="stat-box">
-                        <div class="stat-number">{len(violations)}</div>
+                        <div class="stat-number">""" + str(len(violations)) + """</div>
                         <div class="stat-label">Total Violations</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number">{len(violation_types)}</div>
+                        <div class="stat-number">""" + str(len(violation_types)) + """</div>
                         <div class="stat-label">Violation Types</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-number">{len([v for v in violations if v.get('snapshot_url') or v.get('snapshot_base64')])}</div>
+                        <div class="stat-number">""" + str(len([v for v in violations if v.get('snapshot_url') or v.get('snapshot_base64')])) + """</div>
                         <div class="stat-label">Evidence Photos</div>
                     </div>
                 </div>
