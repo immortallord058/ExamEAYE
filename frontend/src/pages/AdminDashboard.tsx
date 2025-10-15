@@ -499,45 +499,67 @@ const AdminDashboard = () => {
 
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Active Sessions */}
+          {/* Students with Violations */}
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="w-5 h-5" />
-                  Active Exam Sessions
-                  {activeSessions.length > 0 && (
-                    <Badge variant="destructive" className="ml-2 animate-pulse">
-                      {activeSessions.length} LIVE
+                  Students with Violations
+                  {studentsWithViolations.length > 0 && (
+                    <Badge variant="destructive" className="ml-2">
+                      {studentsWithViolations.length} Students
                     </Badge>
                   )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {activeSessions.length > 0 ? (
+                {studentsWithViolations.length > 0 ? (
                   <div className="space-y-3">
-                    {activeSessions.map((session) => (
-                      <Card key={session.id} className="border-2">
+                    {studentsWithViolations.map((student) => (
+                      <Card key={student.student_id} className="border-2 hover:border-primary transition-all">
                         <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-4">
+                            {/* Student Image */}
+                            <div className="flex-shrink-0">
+                              {student.latest_snapshot && (
+                                <img 
+                                  src={
+                                    student.latest_snapshot.startsWith('http') 
+                                      ? student.latest_snapshot 
+                                      : student.latest_snapshot.startsWith('data:')
+                                        ? student.latest_snapshot
+                                        : `data:image/jpeg;base64,${student.latest_snapshot}`
+                                  }
+                                  alt={student.student_name}
+                                  className="w-24 h-24 object-cover rounded-lg border-2 border-red-300"
+                                />
+                              )}
+                            </div>
+                            
+                            {/* Student Info */}
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
-                                <h4 className="font-semibold text-foreground">{session.student_name}</h4>
-                                <Badge variant="outline" className="font-medium">{session.student_id}</Badge>
-                                <Badge className="bg-green-600 text-white font-medium">Active</Badge>
+                                <h4 className="font-bold text-foreground text-lg">{student.student_name}</h4>
+                                <Badge variant="outline" className="font-medium">{student.student_id}</Badge>
                               </div>
-                              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 mb-2">
                                 <span className="flex items-center gap-1 font-medium">
-                                  <Clock className="w-3 h-3" />
-                                  Duration: {formatDuration(session.start_time)}
-                                </span>
-                                <span className="flex items-center gap-1 font-medium">
-                                  <AlertTriangle className="w-3 h-3" />
-                                  Violations: {session.violation_count}
+                                  <AlertTriangle className="w-4 h-4 text-red-500" />
+                                  <span className="text-red-600 dark:text-red-400 font-bold">{student.violation_count}</span> Violations
                                 </span>
                               </div>
-                            </div>
-                            <Button 
+                              <div className="flex flex-wrap gap-1 mb-3">
+                                {student.violation_types.map((type: string) => (
+                                  <Badge key={type} variant="secondary" className="text-xs">
+                                    {getViolationLabel(type)}
+                                  </Badge>
+                                ))}
+                              </div>
+                              
+                              {/* Export Buttons */}
+                              <div className="flex gap-2">
+                                <Button 
                               size="sm" 
                               variant="outline"
                               onClick={() => handleViewSession(session.id)}
