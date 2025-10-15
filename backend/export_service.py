@@ -288,11 +288,11 @@ class ExportService:
             
             for v_type, count in sorted(violation_types.items(), key=lambda x: x[1], reverse=True):
                 percentage = (count / len(violations)) * 100
-                html += f"""
+                html += """
                     <tr>
-                        <td>{v_type.replace('_', ' ').title()}</td>
-                        <td>{count}</td>
-                        <td>{percentage:.1f}%</td>
+                        <td>""" + v_type.replace('_', ' ').title() + """</td>
+                        <td>""" + str(count) + """</td>
+                        <td>""" + f"{percentage:.1f}" + """%</td>
                     </tr>
                 """
             
