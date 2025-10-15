@@ -434,6 +434,61 @@ const AdminDashboard = () => {
         )}
 
 
+        {/* Evidence Gallery Section */}
+        {recentViolations.filter(v => v.snapshot_url).length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="w-5 h-5" />
+                Recent Violation Evidence Gallery
+                <Badge variant="secondary" className="ml-2">
+                  {recentViolations.filter(v => v.snapshot_url).length} Images
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {recentViolations
+                  .filter(v => v.snapshot_url)
+                  .slice(0, 12)
+                  .map((violation) => (
+                    <div 
+                      key={violation.id} 
+                      className="relative group cursor-pointer"
+                      onClick={() => window.open(violation.snapshot_url, '_blank')}
+                    >
+                      <div className="relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-primary transition-all">
+                        <img 
+                          src={violation.snapshot_url} 
+                          alt={`${violation.violation_type} evidence`}
+                          className="w-full h-40 object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                          <div className="absolute bottom-0 left-0 right-0 p-2 text-white">
+                            <p className="text-xs font-bold truncate">{violation.student_name}</p>
+                            <p className="text-xs">
+                              <Badge variant="destructive" className="text-xs">
+                                {getViolationLabel(violation.violation_type)}
+                              </Badge>
+                            </p>
+                            <p className="text-xs opacity-90 mt-1">
+                              {new Date(violation.timestamp).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                          <Eye className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-all" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Active Sessions */}
           <div className="lg:col-span-2 space-y-6">
