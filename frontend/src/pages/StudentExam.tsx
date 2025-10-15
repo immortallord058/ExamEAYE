@@ -161,8 +161,10 @@ const StudentExam = () => {
             analyser.getByteFrequencyData(dataArray);
             const average = dataArray.reduce((a, b) => a + b) / bufferLength;
             
-            // Threshold for excessive noise (adjust as needed)
-            const NOISE_THRESHOLD = 100; // 0-255 scale
+            // Threshold for excessive noise (adjusted for better sensitivity)
+            const NOISE_THRESHOLD = 50; // 0-255 scale (lowered from 100 for better detection)
+            
+            console.log(`Audio level: ${Math.round(average)}`); // Debug logging
             
             if (average > NOISE_THRESHOLD) {
               toast.warning('Excessive noise detected!', { duration: 3000 });
