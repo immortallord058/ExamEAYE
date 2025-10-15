@@ -270,10 +270,15 @@ async def process_frame(request: FrameProcessRequest):
             session = await db.exam_sessions.find_one({"id": request.session_id})
             
             for violation_detail in result['violations']:
-                # Upload snapshot to Supabase if available
+                # Only upload snapshots for camera-based violations
+                # Browser events (copy_paste, tab_switch, excessive_noise) don't need snapshots
+                camera_based_violations = ['phone_detected', 'book_detected', 'multiple_faces', 
+                                          'no_person', 'looking_away']
+                
                 snapshot_url = None
                 snapshot_base64 = None
-                if result.get('snapshot_base64'):
+                
+                if violation_detail['type'] in camera_based_violations and result.get('snapshot_base64'):
                     logger.info(f"Uploading snapshot for violation: {violation_detail['type']}")
                     snapshot_url = supabase_service.upload_violation_snapshot(
                         result['snapshot_base64'],
@@ -287,6 +292,8 @@ async def process_frame(request: FrameProcessRequest):
                         logger.warning("Supabase upload failed, using base64 fallback for display")
                     else:
                         logger.info(f"✅ Snapshot uploaded successfully: {snapshot_url}")
+                else:
+                    logger.info(f"Skipping snapshot for browser/audio violation: {violation_detail['type']}")
                 
                 # Create violation record
                 violation = Violation(
