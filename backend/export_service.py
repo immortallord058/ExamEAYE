@@ -261,7 +261,8 @@ class ExportService:
             html_parts.append(f'<div class="header"><h1>Student Violation Report</h1><p><strong>Student ID:</strong> {student_id}</p><p><strong>Student Name:</strong> {student_name}</p><p><strong>Generated:</strong> {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")}</p></div>')
             
             # Statistics
-            html_parts.append(f'<h2>Summary</h2><p>Total Violations: {len(violations)}</p>')
+            violations_with_images = len([v for v in violations if v.get('snapshot_url') or v.get('snapshot_base64')])
+            html_parts.append(f'<div class="summary-box"><h2>Summary</h2><p><strong>Total Violations:</strong> {len(violations)}</p><p><strong>Violations with Evidence Photos:</strong> {violations_with_images}</p><p><strong>Violations without Photos:</strong> {len(violations) - violations_with_images}</p></div>')
             
             # Violation breakdown table
             html_parts.append('<h2>Violation Breakdown</h2><table><tr><th>Violation Type</th><th>Count</th><th>Percentage</th></tr>')
