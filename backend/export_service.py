@@ -230,10 +230,11 @@ class ExportService:
             
             # Detailed violations
             output.write("DETAILED VIOLATIONS\n")
-            output.write("Timestamp,Violation Type,Severity,Message,Snapshot URL\n")
+            output.write("Timestamp,Violation Type,Severity,Message,Has Evidence Photo,Snapshot URL\n")
             
             for v in violations:
-                output.write(f"{v.get('timestamp', '')},{v.get('violation_type', '')},{v.get('severity', '')},{v.get('message', '')},{v.get('snapshot_url', '')}\n")
+                has_photo = "YES" if (v.get('snapshot_url') or v.get('snapshot_base64')) else "NO"
+                output.write(f"{v.get('timestamp', '')},{v.get('violation_type', '')},{v.get('severity', '')},{v.get('message', '')},{has_photo},{v.get('snapshot_url', 'N/A')}\n")
             
             return output.getvalue()
         except Exception as e:
