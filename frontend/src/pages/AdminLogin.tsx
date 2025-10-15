@@ -87,11 +87,23 @@ const AdminLogin = () => {
 
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="admin"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••"
+                  placeholder="••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
