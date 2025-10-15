@@ -498,7 +498,7 @@ async def admin_login(credentials: dict):
     password = credentials.get('password')
     
     # Simple hardcoded credentials (replace with proper auth in production)
-    if username == "admin" and password == "admin123":
+    if username == "admin" and password == "vinay":
         return {
             "success": True,
             "message": "Login successful",
